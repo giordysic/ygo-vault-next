@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './Checkbox.module.css';
 
 export interface CheckboxProps {
@@ -18,7 +18,8 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   className,
   id,
 }) => {
-  const checkboxId = id ?? React.useId();
+  const generatedId = useId();
+  const checkboxId = id ?? generatedId;
 
   const wrapperClasses = [
     styles.wrapper,

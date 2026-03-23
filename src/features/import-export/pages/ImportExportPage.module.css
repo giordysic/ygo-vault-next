@@ -126,6 +126,29 @@
   color: var(--text-secondary);
 }
 
+/* ---- Legacy Banner ---- */
+
+.legacyBanner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: rgb(245 158 11 / 0.1);
+  border: 1px solid rgb(245 158 11 / 0.3);
+  border-radius: 8px;
+}
+
+.legacyBannerTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--warning);
+}
+
+.legacyBannerDetail {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
 /* ---- Responsive ---- */
 
 @media (max-width: 767px) {
