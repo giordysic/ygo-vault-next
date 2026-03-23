@@ -1,0 +1,48 @@
+/* Progress */
+
+.track {
+  width: 100%;
+  background-color: var(--progress-track);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+/* ---- Sizes ---- */
+
+.sm {
+  height: 4px;
+}
+
+.md {
+  height: 8px;
+}
+
+.lg {
+  height: 12px;
+}
+
+/* ---- Bar ---- */
+
+.bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--ease-out);
+}
+
+/* ---- Variants ---- */
+
+.default {
+  background-color: var(--progress-fill);
+}
+
+.success {
+  background-color: var(--success);
+}
+
+.warning {
+  background-color: var(--warning);
+}
+
+.danger {
+  background-color: var(--danger);
+}

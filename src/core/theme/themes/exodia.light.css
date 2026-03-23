@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Exodia — Light Mode
+   Warm gold and amber palette inspired by the Forbidden One.
+   Bright, warm surfaces with rich golden accents and a regal feel.
+   ========================================================================== */
+
+[data-theme="exodia"][data-mode="light"] {
+  /* ---- Backgrounds ---- */
+  --bg-app: #fefbf3;
+  --bg-surface-1: #ffffff;
+  --bg-surface-2: #fdf8ee;
+  --bg-elevated: #ffffff;
+  --bg-panel: #faf3e0;
+  --bg-card: #ffffff;
+  --bg-input: #fdf8ee;
+  --bg-modal: #ffffff;
+  --bg-overlay: rgb(28 25 23 / 0.35);
+
+  /* ---- Text ---- */
+  --text-primary: #1c1917;
+  --text-secondary: #57534e;
+  --text-muted: #a8a29e;
+  --text-inverse: #fefbf3;
+
+  /* ---- Borders ---- */
+  --border-soft: rgb(217 119 6 / 0.18);
+  --border-strong: rgb(217 119 6 / 0.35);
+
+  /* ---- Accent ---- */
+  --accent-primary: #d97706;
+  --accent-secondary: #f59e0b;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgb(245 158 11 / 0.22);
+
+  /* ---- Status ---- */
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #b45309;
+
+  /* ---- Components ---- */
+  --badge-bg: rgb(217 119 6 / 0.1);
+  --badge-text: #b45309;
+  --progress-track: rgb(217 119 6 / 0.15);
+  --progress-fill: #d97706;
+
+  /* ---- Charts ---- */
+  --chart-1: #d97706;
+  --chart-2: #16a34a;
+  --chart-3: #2563eb;
+  --chart-4: #dc2626;
+  --chart-5: #9333ea;
+
+  /* ---- Interactive States ---- */
+  --bg-hover: rgb(217 119 6 / 0.06);
+  --bg-active: rgb(217 119 6 / 0.1);
+  --bg-selected: rgb(245 158 11 / 0.12);
+}

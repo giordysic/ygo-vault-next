@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Dark Magician — Dark Mode
+   Deep indigo and violet backgrounds with luminous purple accents.
+   Channels the arcane, mystical energy of the Dark Magician.
+   ========================================================================== */
+
+[data-theme="dark-magician"][data-mode="dark"] {
+  /* ---- Backgrounds ---- */
+  --bg-app: #110e2b;
+  --bg-surface-1: #1a1545;
+  --bg-surface-2: #231d55;
+  --bg-elevated: #1e1850;
+  --bg-panel: #1a1545;
+  --bg-card: #1c1648;
+  --bg-input: #130f32;
+  --bg-modal: #1e1850;
+  --bg-overlay: rgb(8 6 20 / 0.7);
+
+  /* ---- Text ---- */
+  --text-primary: #ede9fe;
+  --text-secondary: #a78bfa;
+  --text-muted: #6d56a8;
+  --text-inverse: #110e2b;
+
+  /* ---- Borders ---- */
+  --border-soft: rgb(139 92 246 / 0.15);
+  --border-strong: rgb(139 92 246 / 0.3);
+
+  /* ---- Accent ---- */
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #a78bfa;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgb(139 92 246 / 0.35);
+
+  /* ---- Status ---- */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #8b5cf6;
+
+  /* ---- Components ---- */
+  --badge-bg: rgb(139 92 246 / 0.18);
+  --badge-text: #a78bfa;
+  --progress-track: rgb(139 92 246 / 0.15);
+  --progress-fill: #8b5cf6;
+
+  /* ---- Charts ---- */
+  --chart-1: #8b5cf6;
+  --chart-2: #34d399;
+  --chart-3: #fbbf24;
+  --chart-4: #f87171;
+  --chart-5: #60a5fa;
+
+  /* ---- Interactive States ---- */
+  --bg-hover: rgb(139 92 246 / 0.1);
+  --bg-active: rgb(139 92 246 / 0.16);
+  --bg-selected: rgb(139 92 246 / 0.18);
+}

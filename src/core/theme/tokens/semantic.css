@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Semantic Color Tokens
+   Default / fallback values for all semantic color tokens.
+   These are overridden by individual theme CSS files via data-attribute selectors.
+   ========================================================================== */
+
+:root {
+  /* ---- Backgrounds ---- */
+  --bg-app: #0f172a;
+  --bg-surface-1: #1e293b;
+  --bg-surface-2: #334155;
+  --bg-elevated: #1e293b;
+  --bg-panel: #1e293b;
+  --bg-card: #1e293b;
+  --bg-input: #0f172a;
+  --bg-modal: #1e293b;
+  --bg-overlay: rgb(0 0 0 / 0.6);
+
+  /* ---- Text ---- */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+
+  /* ---- Borders ---- */
+  --border-soft: rgb(148 163 184 / 0.15);
+  --border-strong: rgb(148 163 184 / 0.3);
+
+  /* ---- Accent ---- */
+  --accent-primary: #3b82f6;
+  --accent-secondary: #60a5fa;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgb(59 130 246 / 0.35);
+
+  /* ---- Status ---- */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+
+  /* ---- Components ---- */
+  --badge-bg: rgb(59 130 246 / 0.15);
+  --badge-text: #60a5fa;
+  --progress-track: rgb(148 163 184 / 0.15);
+  --progress-fill: #3b82f6;
+
+  /* ---- Charts ---- */
+  --chart-1: #3b82f6;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #a855f7;
+
+  /* ---- Interactive States ---- */
+  --bg-hover: rgb(148 163 184 / 0.08);
+  --bg-active: rgb(148 163 184 / 0.12);
+  --bg-selected: rgb(59 130 246 / 0.15);
+}

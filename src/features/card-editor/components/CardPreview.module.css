@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Card Preview
+   ========================================================================== */
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.previewTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.imageArea {
+  aspect-ratio: 59 / 86;
+  border-radius: 8px;
+  background: var(--bg-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.imagePlaceholder {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.cardTitleEmpty {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.setInfo {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rarityBadge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+.statRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.stat {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.statLabel {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.statValue {
+  color: var(--text-primary);
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--success);
+}

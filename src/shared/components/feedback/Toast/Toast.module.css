@@ -1,0 +1,137 @@
+/* Toast */
+
+.container {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-lg);
+  min-width: 300px;
+  max-width: 480px;
+  pointer-events: auto;
+  animation: slideIn var(--duration-normal) var(--ease-out);
+}
+
+/* ---- Types ---- */
+
+.success {
+  border-left: 3px solid var(--success);
+}
+
+.error {
+  border-left: 3px solid var(--danger);
+}
+
+.warning {
+  border-left: 3px solid var(--warning);
+}
+
+.info {
+  border-left: 3px solid var(--info);
+}
+
+/* ---- Icon ---- */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.success .icon {
+  color: var(--success);
+}
+
+.error .icon {
+  color: var(--danger);
+}
+
+.warning .icon {
+  color: var(--warning);
+}
+
+.info .icon {
+  color: var(--info);
+}
+
+/* ---- Message ---- */
+
+.message {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* ---- Dismiss ---- */
+
+.dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.dismiss:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.dismiss svg {
+  width: 14px;
+  height: 14px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
+
+  .toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
