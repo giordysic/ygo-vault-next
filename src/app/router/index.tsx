@@ -10,6 +10,7 @@ import {
   type RouteObject,
 } from 'react-router-dom';
 import { AppShell } from '@/app/shell/AppShell';
+import { NotFoundPage } from '@/app/pages/NotFoundPage';
 
 // ---------------------------------------------------------------------------
 // Lazy-loaded page components
@@ -148,6 +149,10 @@ const routes: RouteObject[] = [
             <SettingsPage />
           </LazyPage>
         ),
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
   },

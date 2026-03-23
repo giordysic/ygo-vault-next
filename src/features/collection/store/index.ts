@@ -15,6 +15,9 @@ export interface CollectionFilters {
   setCode: string[];
   typeLine: string[];
   tags: string[];
+  language: string[];
+  condition: string[];
+  mdRarity: string[];
 }
 
 const emptyFilters: CollectionFilters = {
@@ -23,6 +26,9 @@ const emptyFilters: CollectionFilters = {
   setCode: [],
   typeLine: [],
   tags: [],
+  language: [],
+  condition: [],
+  mdRarity: [],
 };
 
 // ---------------------------------------------------------------------------
@@ -46,6 +52,9 @@ interface CollectionActions {
   updateEntry: (entryId: string, changes: Partial<CollectionEntry>) => Promise<void>;
   removeEntry: (entryId: string) => Promise<void>;
   bulkRemove: (entryIds: string[]) => Promise<void>;
+  duplicateEntry: (entryId: string) => Promise<CollectionEntry | null>;
+  changeQty: (entryId: string, delta: number) => Promise<void>;
+  bulkSetTags: (entryIds: string[], tags: string[]) => Promise<void>;
   setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
   clearFilters: () => void;
   setSort: (sort: SortSpec) => void;
@@ -62,7 +71,7 @@ type CollectionStore = CollectionState & CollectionActions;
 // Store
 // ---------------------------------------------------------------------------
 
-export const useCollectionStore = create<CollectionStore>()((set, _get) => ({
+export const useCollectionStore = create<CollectionStore>()((set, get) => ({
   entries: [],
   loading: false,
   filters: { ...emptyFilters },
@@ -122,6 +131,48 @@ export const useCollectionStore = create<CollectionStore>()((set, _get) => ({
     const toRemove = new Set(entryIds);
     set((s) => ({
       entries: s.entries.filter((e) => !toRemove.has(e.entryId)),
+      selectedIds: new Set<string>(),
+      bulkMode: false,
+    }));
+  },
+
+  async duplicateEntry(entryId) {
+    const source = get().entries.find((e) => e.entryId === entryId);
+    if (!source) return null;
+    const now = nowISO();
+    const clone: CollectionEntry = {
+      ...source,
+      entryId: createEntryId(),
+      createdAt: now,
+      updatedAt: now,
+    };
+    await collectionRepository.add(clone);
+    set((s) => ({ entries: [clone, ...s.entries] }));
+    return clone;
+  },
+
+  async changeQty(entryId, delta) {
+    const entry = get().entries.find((e) => e.entryId === entryId);
+    if (!entry) return;
+    const newQty = Math.max(0, entry.qty + delta);
+    await collectionRepository.update(entryId, { qty: newQty, updatedAt: nowISO() });
+    set((s) => ({
+      entries: s.entries.map((e) =>
+        e.entryId === entryId ? { ...e, qty: newQty, updatedAt: nowISO() } : e,
+      ),
+    }));
+  },
+
+  async bulkSetTags(entryIds, tags) {
+    const now = nowISO();
+    for (const id of entryIds) {
+      await collectionRepository.update(id, { tags, updatedAt: now });
+    }
+    const idSet = new Set(entryIds);
+    set((s) => ({
+      entries: s.entries.map((e) =>
+        idSet.has(e.entryId) ? { ...e, tags, updatedAt: now } : e,
+      ),
       selectedIds: new Set<string>(),
       bulkMode: false,
     }));

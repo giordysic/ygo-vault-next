@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { importService } from '@/core/services/importExport/importService';
+import { detectLegacyFormat, type LegacyDetectionResult } from '@/core/services/importExport/legacyAdapter';
 import type { ImportPayload, ImportResult } from '@/core/schemas/import.schemas';
 import type { ImportStrategy } from '@/core/types/common';
 
@@ -8,6 +9,7 @@ export interface UseImportReturn {
   error: string | null;
   preview: ImportPayload | null;
   result: ImportResult | null;
+  legacyInfo: LegacyDetectionResult | null;
   readFile: (file: File) => Promise<void>;
   applyImport: (strategy: ImportStrategy) => Promise<void>;
   clearPreview: () => void;
@@ -18,11 +20,13 @@ export function useImport(): UseImportReturn {
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<ImportPayload | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
+  const [legacyInfo, setLegacyInfo] = useState<LegacyDetectionResult | null>(null);
 
   const readFile = useCallback(async (file: File) => {
     setError(null);
     setResult(null);
     setPreview(null);
+    setLegacyInfo(null);
 
     try {
       const text = await file.text();
@@ -34,9 +38,16 @@ export function useImport(): UseImportReturn {
       } catch {
         // Try legacy format
         const parsed = JSON.parse(text);
+        const detection = detectLegacyFormat(parsed);
+        setLegacyInfo(detection);
+
         const adapted = importService.adaptLegacyPayload(parsed);
         if (!adapted) {
-          throw new Error('Unrecognized import file format.');
+          throw new Error(
+            detection.isLegacy
+              ? `Detected legacy format (${detection.format}) with ${detection.recordCount} records, but failed to convert. Some records may have invalid data.`
+              : 'Unrecognized import file format.',
+          );
         }
         payload = adapted;
       }
@@ -71,5 +82,5 @@ export function useImport(): UseImportReturn {
     setResult(null);
   }, []);
 
-  return { importing, error, preview, result, readFile, applyImport, clearPreview };
+  return { importing, error, preview, result, legacyInfo, readFile, applyImport, clearPreview };
 }

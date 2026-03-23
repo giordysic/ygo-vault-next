@@ -30,7 +30,7 @@ export const collectionEntrySchema = z.object({
   targetPrice: z.number().nullable().optional(),
   priceSource: z.enum(['manual', 'auto', 'estimated']).nullable().optional(),
   priceUpdatedAt: z.string().nullable().optional(),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().max(5000).optional(),
   tags: z.array(z.string().max(40)).max(50).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
