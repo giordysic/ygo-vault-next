@@ -10,7 +10,8 @@ export const settingsRepository = {
     if (!record) {
       return createDefaultSettings();
     }
-    const { id: _id, ...rest } = record;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _key, ...rest } = record;
     return rest as unknown as AppSettings;
   },
 

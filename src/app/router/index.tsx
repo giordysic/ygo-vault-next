@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // ==========================================================================
 // App Router
 // React Router configuration with lazy-loaded routes and AppShell layout.
@@ -38,7 +39,6 @@ const ImportExportPage = lazy(
 const SettingsPage = lazy(
   () => import('@/features/settings/pages/SettingsPage'),
 );
-
 // ---------------------------------------------------------------------------
 // Suspense wrapper for lazy pages
 // ---------------------------------------------------------------------------

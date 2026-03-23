@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './Input.module.css';
 
 export interface InputProps
@@ -15,7 +15,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     { label, error, hint, fullWidth = false, icon, className, id, ...rest },
     ref,
   ) => {
-    const inputId = id ?? React.useId();
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
 
     const wrapperClasses = [
       styles.wrapper,

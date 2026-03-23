@@ -26,6 +26,7 @@ interface ModalContextValue {
 
 const ModalContext = createContext<ModalContextValue | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useModal(): ModalContextValue {
   const ctx = useContext(ModalContext);
   if (!ctx) {

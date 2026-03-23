@@ -28,8 +28,7 @@ export class AppError extends Error {
 
     // Maintain proper stack trace in V8 environments
     if ('captureStackTrace' in Error) {
-      (Error as unknown as { captureStackTrace: (target: object, constructor: Function) => void })
-        .captureStackTrace(this, AppError);
+      (Error.captureStackTrace as (target: object, constructor: typeof AppError) => void)(this, AppError);
     }
   }
 }

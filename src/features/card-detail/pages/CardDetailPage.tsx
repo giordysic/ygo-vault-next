@@ -20,17 +20,14 @@ function CardDetailPage() {
   const changeQty = useCollectionStore((s) => s.changeQty);
 
   const [entry, setEntry] = useState<CollectionEntry | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [loading, setLoading] = useState(!!entryId);
+  const [notFound, setNotFound] = useState(!entryId);
 
   useEffect(() => {
-    if (!entryId) {
-      setNotFound(true);
-      setLoading(false);
-      return;
-    }
+    if (!entryId) return;
     let cancelled = false;
-    collectionRepository.getById(entryId).then((result) => {
+    const loadEntry = async () => {
+      const result = await collectionRepository.getById(entryId);
       if (cancelled) return;
       if (result) {
         setEntry(result);
@@ -38,7 +35,8 @@ function CardDetailPage() {
         setNotFound(true);
       }
       setLoading(false);
-    });
+    };
+    loadEntry();
     return () => {
       cancelled = true;
     };

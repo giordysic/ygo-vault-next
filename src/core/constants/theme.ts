@@ -1,8 +1,6 @@
 export const THEME_IDS = {
-  DEFAULT: 'default',
   BLUE_EYES: 'blue-eyes',
   DARK_MAGICIAN: 'dark-magician',
-  RED_EYES: 'red-eyes',
   EXODIA: 'exodia',
 } as const;
 
@@ -22,16 +20,14 @@ export interface ThemeConfig {
 }
 
 export const DEFAULT_THEME_CONFIG: ThemeConfig = {
-  id: THEME_IDS.DEFAULT,
-  label: 'Default',
+  id: THEME_IDS.BLUE_EYES,
+  label: 'Blue-Eyes',
   mode: THEME_MODES.DARK,
 };
 
 export const AVAILABLE_THEMES: readonly ThemeConfig[] = [
-  { id: THEME_IDS.DEFAULT, label: 'Default', mode: THEME_MODES.DARK },
-  { id: THEME_IDS.BLUE_EYES, label: 'Blue-Eyes', mode: THEME_MODES.LIGHT },
+  { id: THEME_IDS.BLUE_EYES, label: 'Blue-Eyes', mode: THEME_MODES.DARK },
   { id: THEME_IDS.DARK_MAGICIAN, label: 'Dark Magician', mode: THEME_MODES.DARK },
-  { id: THEME_IDS.RED_EYES, label: 'Red-Eyes', mode: THEME_MODES.DARK },
   { id: THEME_IDS.EXODIA, label: 'Exodia', mode: THEME_MODES.DARK },
 ] as const;
 
