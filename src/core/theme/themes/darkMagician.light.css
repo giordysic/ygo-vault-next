@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Dark Magician — Light Mode
+   Soft lavender and violet palette inspired by the arcane sorcerer.
+   Elegant light surfaces with rich purple accents and subtle mystical tones.
+   ========================================================================== */
+
+[data-theme="dark-magician"][data-mode="light"] {
+  /* ---- Backgrounds ---- */
+  --bg-app: #f5f3ff;
+  --bg-surface-1: #ffffff;
+  --bg-surface-2: #faf8ff;
+  --bg-elevated: #ffffff;
+  --bg-panel: #f0ecfe;
+  --bg-card: #ffffff;
+  --bg-input: #faf8ff;
+  --bg-modal: #ffffff;
+  --bg-overlay: rgb(30 27 75 / 0.35);
+
+  /* ---- Text ---- */
+  --text-primary: #1e1b4b;
+  --text-secondary: #4c1d95;
+  --text-muted: #8b5cf6;
+  --text-inverse: #faf8ff;
+
+  /* ---- Borders ---- */
+  --border-soft: rgb(139 92 246 / 0.18);
+  --border-strong: rgb(139 92 246 / 0.35);
+
+  /* ---- Accent ---- */
+  --accent-primary: #7c3aed;
+  --accent-secondary: #8b5cf6;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgb(124 58 237 / 0.2);
+
+  /* ---- Status ---- */
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #7c3aed;
+
+  /* ---- Components ---- */
+  --badge-bg: rgb(124 58 237 / 0.1);
+  --badge-text: #7c3aed;
+  --progress-track: rgb(139 92 246 / 0.15);
+  --progress-fill: #7c3aed;
+
+  /* ---- Charts ---- */
+  --chart-1: #7c3aed;
+  --chart-2: #16a34a;
+  --chart-3: #d97706;
+  --chart-4: #dc2626;
+  --chart-5: #2563eb;
+
+  /* ---- Interactive States ---- */
+  --bg-hover: rgb(124 58 237 / 0.06);
+  --bg-active: rgb(124 58 237 / 0.1);
+  --bg-selected: rgb(124 58 237 / 0.1);
+}

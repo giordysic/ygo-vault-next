@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Blue-Eyes White Dragon — Dark Mode
+   Deep midnight-blue backgrounds with bright azure accents and silver edges.
+   Evokes the cold, radiant power of the Blue-Eyes White Dragon.
+   ========================================================================== */
+
+[data-theme="blue-eyes"][data-mode="dark"] {
+  /* ---- Backgrounds ---- */
+  --bg-app: #0b1120;
+  --bg-surface-1: #111b2e;
+  --bg-surface-2: #182640;
+  --bg-elevated: #152035;
+  --bg-panel: #111b2e;
+  --bg-card: #131d30;
+  --bg-input: #0d1526;
+  --bg-modal: #152035;
+  --bg-overlay: rgb(5 10 20 / 0.7);
+
+  /* ---- Text ---- */
+  --text-primary: #e8edf5;
+  --text-secondary: #8fa3c4;
+  --text-muted: #5a7299;
+  --text-inverse: #0b1120;
+
+  /* ---- Borders ---- */
+  --border-soft: rgb(96 165 250 / 0.12);
+  --border-strong: rgb(96 165 250 / 0.25);
+
+  /* ---- Accent ---- */
+  --accent-primary: #3b82f6;
+  --accent-secondary: #60a5fa;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgb(59 130 246 / 0.3);
+
+  /* ---- Status ---- */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+
+  /* ---- Components ---- */
+  --badge-bg: rgb(59 130 246 / 0.15);
+  --badge-text: #60a5fa;
+  --progress-track: rgb(96 165 250 / 0.12);
+  --progress-fill: #3b82f6;
+
+  /* ---- Charts ---- */
+  --chart-1: #3b82f6;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #a78bfa;
+
+  /* ---- Interactive States ---- */
+  --bg-hover: rgb(59 130 246 / 0.08);
+  --bg-active: rgb(59 130 246 / 0.14);
+  --bg-selected: rgb(59 130 246 / 0.15);
+}

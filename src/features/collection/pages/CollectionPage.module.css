@@ -1,0 +1,198 @@
+/* ==========================================================================
+   Collection Page
+   ========================================================================== */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ---- Top Bar ---- */
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  flex: 1;
+  min-width: 200px;
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterToggle {
+  position: relative;
+}
+
+.filterBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  pointer-events: none;
+}
+
+.sortSelect {
+  min-width: 140px;
+}
+
+/* ---- Content ---- */
+
+.content {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---- Empty State ---- */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.emptyDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  max-width: 320px;
+}
+
+/* ---- FAB ---- */
+
+.fab {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px var(--accent-glow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 50;
+}
+
+.fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.fab:active {
+  transform: scale(0.96);
+}
+
+.fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ---- Bulk Action Bar ---- */
+
+.bulkBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-soft);
+  z-index: 60;
+}
+
+.bulkInfo {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.bulkActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ---- Loading ---- */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 767px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .topBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrapper {
+    min-width: unset;
+  }
+
+  .topBarActions {
+    justify-content: space-between;
+  }
+
+  .sortSelect {
+    min-width: unset;
+    flex: 1;
+  }
+}

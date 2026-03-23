@@ -1,0 +1,83 @@
+/* ==========================================================================
+   Theme Picker
+   ========================================================================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.card {
+  position: relative;
+  background: var(--bg-card);
+  border: 2px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+.cardActive {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.checkMark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkMark svg {
+  width: 14px;
+  height: 14px;
+}
+
+.themeName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.themeDescription {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.swatches {
+  display: flex;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+.swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

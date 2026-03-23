@@ -1,0 +1,16 @@
+/* InlineError */
+
+.error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--danger);
+  line-height: 1.4;
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}

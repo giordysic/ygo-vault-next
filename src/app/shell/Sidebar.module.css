@@ -1,0 +1,124 @@
+/* ==========================================================================
+   Sidebar – Desktop Only
+   ========================================================================== */
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  width: 220px;
+  background-color: var(--bg-surface-1);
+  border-right: 1px solid var(--border-soft);
+  padding: var(--space-4) 0;
+  transition: width var(--duration-normal) var(--ease-out);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Show on desktop */
+@media (min-width: 769px) {
+  .sidebar {
+    display: flex;
+  }
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* ---- Navigation ---- */
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  flex: 1;
+}
+
+/* ---- Link Item ---- */
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.link:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.link.active {
+  background-color: var(--bg-selected);
+  color: var(--accent-primary);
+}
+
+/* ---- Icon ---- */
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+/* ---- Label ---- */
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Collapse Button ---- */
+
+.collapseBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  margin: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.collapseBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.collapseBtn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.collapseLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* When collapsed, center the collapse button icon */
+.collapsed .collapseBtn {
+  justify-content: center;
+  padding: var(--space-2);
+}

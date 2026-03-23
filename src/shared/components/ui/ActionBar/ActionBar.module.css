@@ -1,0 +1,103 @@
+/* ActionBar */
+
+.bar {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  animation: slideUp var(--duration-normal) var(--ease-out);
+}
+
+.count {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--accent-secondary);
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.actionButton:hover {
+  background-color: var(--bg-hover);
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+.actionIcon {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-base);
+}
+
+.clearButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.clearButton:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.clearButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}

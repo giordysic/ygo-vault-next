@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Exodia — Dark Mode
+   Deep warm darks with rich gold accents and ancient, premium atmosphere.
+   Channels the legendary power and forbidden grandeur of Exodia.
+   ========================================================================== */
+
+[data-theme="exodia"][data-mode="dark"] {
+  /* ---- Backgrounds ---- */
+  --bg-app: #141110;
+  --bg-surface-1: #1f1b18;
+  --bg-surface-2: #2a2420;
+  --bg-elevated: #231e1a;
+  --bg-panel: #1f1b18;
+  --bg-card: #211c18;
+  --bg-input: #171311;
+  --bg-modal: #231e1a;
+  --bg-overlay: rgb(10 8 6 / 0.7);
+
+  /* ---- Text ---- */
+  --text-primary: #f5f0e8;
+  --text-secondary: #c4a97a;
+  --text-muted: #8a7558;
+  --text-inverse: #141110;
+
+  /* ---- Borders ---- */
+  --border-soft: rgb(245 158 11 / 0.14);
+  --border-strong: rgb(245 158 11 / 0.28);
+
+  /* ---- Accent ---- */
+  --accent-primary: #f59e0b;
+  --accent-secondary: #fbbf24;
+  --accent-contrast: #1c1917;
+  --accent-glow: rgb(245 158 11 / 0.3);
+
+  /* ---- Status ---- */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #f59e0b;
+
+  /* ---- Components ---- */
+  --badge-bg: rgb(245 158 11 / 0.15);
+  --badge-text: #fbbf24;
+  --progress-track: rgb(245 158 11 / 0.12);
+  --progress-fill: #f59e0b;
+
+  /* ---- Charts ---- */
+  --chart-1: #f59e0b;
+  --chart-2: #34d399;
+  --chart-3: #60a5fa;
+  --chart-4: #f87171;
+  --chart-5: #a78bfa;
+
+  /* ---- Interactive States ---- */
+  --bg-hover: rgb(245 158 11 / 0.08);
+  --bg-active: rgb(245 158 11 / 0.14);
+  --bg-selected: rgb(245 158 11 / 0.16);
+}

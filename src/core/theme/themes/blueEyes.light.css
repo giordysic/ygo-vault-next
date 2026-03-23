@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Blue-Eyes White Dragon — Light Mode
+   Cool blue / white / silver palette inspired by the legendary dragon.
+   Clean, crisp surfaces with icy blue accents and silver highlights.
+   ========================================================================== */
+
+[data-theme="blue-eyes"][data-mode="light"] {
+  /* ---- Backgrounds ---- */
+  --bg-app: #f0f4f8;
+  --bg-surface-1: #ffffff;
+  --bg-surface-2: #f8fafc;
+  --bg-elevated: #ffffff;
+  --bg-panel: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-input: #f8fafc;
+  --bg-modal: #ffffff;
+  --bg-overlay: rgb(15 23 42 / 0.4);
+
+  /* ---- Text ---- */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #f8fafc;
+
+  /* ---- Borders ---- */
+  --border-soft: rgb(148 163 184 / 0.25);
+  --border-strong: rgb(148 163 184 / 0.45);
+
+  /* ---- Accent ---- */
+  --accent-primary: #2563eb;
+  --accent-secondary: #3b82f6;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgb(37 99 235 / 0.2);
+
+  /* ---- Status ---- */
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #2563eb;
+
+  /* ---- Components ---- */
+  --badge-bg: rgb(37 99 235 / 0.1);
+  --badge-text: #2563eb;
+  --progress-track: rgb(148 163 184 / 0.2);
+  --progress-fill: #2563eb;
+
+  /* ---- Charts ---- */
+  --chart-1: #2563eb;
+  --chart-2: #16a34a;
+  --chart-3: #d97706;
+  --chart-4: #dc2626;
+  --chart-5: #9333ea;
+
+  /* ---- Interactive States ---- */
+  --bg-hover: rgb(37 99 235 / 0.06);
+  --bg-active: rgb(37 99 235 / 0.1);
+  --bg-selected: rgb(37 99 235 / 0.1);
+}
