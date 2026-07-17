@@ -17,6 +17,12 @@ jobs:
         working-directory: detox-launcher
     steps:
       - uses: actions/checkout@v4
+      - name: Restore Android project
+        run: |
+          base64 -d project.b64 > project.tar.gz
+          tar -xzf project.tar.gz
+          test -s app/src/main/java/com/nettuno/detoxlauncher/MainActivity.java
+          test -s app/src/main/AndroidManifest.xml
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
