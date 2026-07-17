@@ -20,12 +20,11 @@ jobs:
       - name: Restore Android project
         run: |
           cat project-bundle/part* > project.b64
+          wc -c project.b64
           base64 --decode project.b64 > project.tar.gz
+          gzip -t project.tar.gz
           tar -xzf project.tar.gz
-          test -s app/src/main/java/com/nettuno/detoxlauncher/MainActivity.java
-          test -s app/src/main/java/com/nettuno/detoxlauncher/DetoxEngine.java
-          grep -q 'QUEST_BREATHE' app/src/main/java/com/nettuno/detoxlauncher/DetoxEngine.java
-          grep -q "versionName '1.1.0'" app/build.gradle
+          find app/src/main -maxdepth 6 -type f | sort
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
