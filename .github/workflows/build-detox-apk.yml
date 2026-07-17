@@ -1,0 +1,54 @@
+name: Build DETOX Launcher APK
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: detox-launcher
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore Android project
+        run: |
+          cat project-bundle/part* > project.tar.gz
+          tar -xzf project.tar.gz
+          test -s app/src/main/java/com/nettuno/detoxlauncher/MainActivity.java
+          test -s app/src/main/AndroidManifest.xml
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Build installable APK
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify and prepare artifact
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk DETOX-LAUNCHER-1.0.0.apk
+          sha256sum DETOX-LAUNCHER-1.0.0.apk > DETOX-LAUNCHER-1.0.0.apk.sha256
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs DETOX-LAUNCHER-1.0.0.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging DETOX-LAUNCHER-1.0.0.apk | tee apk-badging.txt
+          grep -q "package: name='com.nettuno.detoxlauncher'" apk-badging.txt
+          grep -q "versionName='1.0.0'" apk-badging.txt
+          unzip -t DETOX-LAUNCHER-1.0.0.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DETOX-LAUNCHER-APK
+          path: |
+            detox-launcher/DETOX-LAUNCHER-1.0.0.apk
+            detox-launcher/DETOX-LAUNCHER-1.0.0.apk.sha256
+          if-no-files-found: error
+          retention-days: 30
