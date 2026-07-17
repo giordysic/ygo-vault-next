@@ -1,4 +1,4 @@
-name: Build DETOX Launcher APK
+name: Build DETOX BioSafe Launcher APK
 
 on:
   pull_request:
@@ -19,10 +19,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Restore Android project
         run: |
-          base64 -d project.b64 > project.tar.gz
+          cat project-bundle/part* > project.b64
+          base64 --decode project.b64 > project.tar.gz
           tar -xzf project.tar.gz
           test -s app/src/main/java/com/nettuno/detoxlauncher/MainActivity.java
-          test -s app/src/main/AndroidManifest.xml
+          test -s app/src/main/java/com/nettuno/detoxlauncher/DetoxEngine.java
+          grep -q 'QUEST_BREATHE' app/src/main/java/com/nettuno/detoxlauncher/DetoxEngine.java
+          grep -q "versionName '1.1.0'" app/build.gradle
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -37,18 +40,19 @@ jobs:
         run: gradle --no-daemon :app:assembleDebug
       - name: Verify APK
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk DETOX-LAUNCHER-1.0.0.apk
-          sha256sum DETOX-LAUNCHER-1.0.0.apk > DETOX-LAUNCHER-1.0.0.apk.sha256
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs DETOX-LAUNCHER-1.0.0.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging DETOX-LAUNCHER-1.0.0.apk | tee apk-badging.txt
+          cp app/build/outputs/apk/debug/app-debug.apk DETOX-BIOSAFE-LAUNCHER-1.1.0.apk
+          sha256sum DETOX-BIOSAFE-LAUNCHER-1.1.0.apk > DETOX-BIOSAFE-LAUNCHER-1.1.0.apk.sha256
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs DETOX-BIOSAFE-LAUNCHER-1.1.0.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging DETOX-BIOSAFE-LAUNCHER-1.1.0.apk | tee apk-badging.txt
           grep -q "package: name='com.nettuno.detoxlauncher'" apk-badging.txt
-          grep -q "versionName='1.0.0'" apk-badging.txt
-          unzip -t DETOX-LAUNCHER-1.0.0.apk
+          grep -q "versionName='1.1.0'" apk-badging.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump xmltree DETOX-BIOSAFE-LAUNCHER-1.1.0.apk AndroidManifest.xml | grep -q 'android.intent.category.HOME'
+          unzip -t DETOX-BIOSAFE-LAUNCHER-1.1.0.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: DETOX-LAUNCHER-APK
+          name: DETOX-BIOSAFE-LAUNCHER-APK
           path: |
-            detox-launcher/DETOX-LAUNCHER-1.0.0.apk
-            detox-launcher/DETOX-LAUNCHER-1.0.0.apk.sha256
+            detox-launcher/DETOX-BIOSAFE-LAUNCHER-1.1.0.apk
+            detox-launcher/DETOX-BIOSAFE-LAUNCHER-1.1.0.apk.sha256
           if-no-files-found: error
           retention-days: 30
