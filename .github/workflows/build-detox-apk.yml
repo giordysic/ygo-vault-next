@@ -23,6 +23,14 @@ jobs:
           base64 --decode project.b64 > project.tar.gz
           gzip -t project.tar.gz
           tar -xzf project.tar.gz
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('app/src/main/res/values/strings.xml')
+          s = p.read_text(encoding='utf-8')
+          if 'accessibility_service_description' not in s:
+              s = s.replace('</resources>', '    <string name="accessibility_service_description">Controllo BioSafe delle app e del tempo schermo</string>\n</resources>')
+              p.write_text(s, encoding='utf-8')
+          PY
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
