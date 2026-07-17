@@ -16,19 +16,18 @@ function CardDetailPage() {
   const { entryId } = useParams<{ entryId: string }>();
 
   const removeEntry = useCollectionStore((s) => s.removeEntry);
+  const duplicateEntry = useCollectionStore((s) => s.duplicateEntry);
+  const changeQty = useCollectionStore((s) => s.changeQty);
 
   const [entry, setEntry] = useState<CollectionEntry | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [loading, setLoading] = useState(!!entryId);
+  const [notFound, setNotFound] = useState(!entryId);
 
   useEffect(() => {
-    if (!entryId) {
-      setNotFound(true);
-      setLoading(false);
-      return;
-    }
+    if (!entryId) return;
     let cancelled = false;
-    collectionRepository.getById(entryId).then((result) => {
+    const loadEntry = async () => {
+      const result = await collectionRepository.getById(entryId);
       if (cancelled) return;
       if (result) {
         setEntry(result);
@@ -36,7 +35,8 @@ function CardDetailPage() {
         setNotFound(true);
       }
       setLoading(false);
-    });
+    };
+    loadEntry();
     return () => {
       cancelled = true;
     };
@@ -56,6 +56,25 @@ function CardDetailPage() {
     await removeEntry(entryId);
     navigate('/collection');
   }, [entryId, removeEntry, navigate]);
+
+  const handleDuplicate = useCallback(async () => {
+    if (!entryId) return;
+    const clone = await duplicateEntry(entryId);
+    if (clone) {
+      navigate(`/collection/${clone.entryId}`);
+    }
+  }, [entryId, duplicateEntry, navigate]);
+
+  const handleQtyChange = useCallback(async (delta: number) => {
+    if (!entryId || !entry) return;
+    await changeQty(entryId, delta);
+    setEntry((prev) => prev ? { ...prev, qty: Math.max(0, prev.qty + delta) } : prev);
+  }, [entryId, entry, changeQty]);
+
+  const handleClone = useCallback(() => {
+    if (!entryId) return;
+    navigate(`/collection/add?cloneFrom=${entryId}`);
+  }, [entryId, navigate]);
 
   if (loading) {
     return (
@@ -105,10 +124,36 @@ function CardDetailPage() {
           <Button variant="secondary" size="sm" onClick={handleEdit}>
             Edit
           </Button>
+          <Button variant="ghost" size="sm" onClick={handleDuplicate}>
+            Duplicate
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleClone}>
+            Clone
+          </Button>
           <Button variant="danger" size="sm" onClick={handleDelete}>
             Delete
           </Button>
         </div>
+      </div>
+
+      {/* Qty controls */}
+      <div className={styles.qtySection}>
+        <button
+          type="button"
+          className={styles.qtyButton}
+          onClick={() => handleQtyChange(-1)}
+          disabled={entry.qty <= 0}
+        >
+          -
+        </button>
+        <span className={styles.qtyDisplay}>{formatQty(entry.qty)}</span>
+        <button
+          type="button"
+          className={styles.qtyButton}
+          onClick={() => handleQtyChange(1)}
+        >
+          +
+        </button>
       </div>
 
       {/* Image */}

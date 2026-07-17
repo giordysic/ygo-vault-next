@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './Select.module.css';
 
 export interface SelectOption {
@@ -16,7 +16,8 @@ export interface SelectProps
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, options, error, fullWidth = false, className, id, ...rest }, ref) => {
-    const selectId = id ?? React.useId();
+    const generatedId = useId();
+    const selectId = id ?? generatedId;
 
     const wrapperClasses = [
       styles.wrapper,

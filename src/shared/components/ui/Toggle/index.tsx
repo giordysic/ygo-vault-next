@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './Toggle.module.css';
 
 export interface ToggleProps {
@@ -18,7 +18,8 @@ export const Toggle: React.FC<ToggleProps> = ({
   className,
   id,
 }) => {
-  const toggleId = id ?? React.useId();
+  const generatedId = useId();
+  const toggleId = id ?? generatedId;
 
   const wrapperClasses = [
     styles.wrapper,

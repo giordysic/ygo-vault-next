@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useCollectionStore } from '@/features/collection/store';
 import { useCardForm } from '@/features/card-editor/hooks/useCardForm';
 import { CardForm } from '@/features/card-editor/components/CardForm';
@@ -14,27 +14,36 @@ import styles from './CardEditorPage.module.css';
 function CardEditorPage() {
   const navigate = useNavigate();
   const { entryId } = useParams<{ entryId: string }>();
+  const [searchParams] = useSearchParams();
+  const cloneFromId = searchParams.get('cloneFrom');
   const isEditMode = Boolean(entryId);
+  const isCloneMode = Boolean(cloneFromId);
   const isMobile = useIsMobile();
 
   const addEntry = useCollectionStore((s) => s.addEntry);
   const updateEntry = useCollectionStore((s) => s.updateEntry);
 
   const [existingEntry, setExistingEntry] = useState<CollectionEntry | undefined>(undefined);
-  const [loadingEntry, setLoadingEntry] = useState(isEditMode);
+  const [loadingEntry, setLoadingEntry] = useState(isEditMode || isCloneMode);
   const [notFound, setNotFound] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Load existing entry for edit mode
+  // Load existing entry for edit mode or clone mode
   useEffect(() => {
-    if (!entryId) return;
+    const loadId = entryId || cloneFromId;
+    if (!loadId) return;
     let cancelled = false;
     setLoadingEntry(true);
-    collectionRepository.getById(entryId).then((entry) => {
+    collectionRepository.getById(loadId).then((entry) => {
       if (cancelled) return;
       if (entry) {
-        setExistingEntry(entry);
+        if (isCloneMode) {
+          // Strip IDs and timestamps for clone
+          setExistingEntry({ ...entry, entryId: '', createdAt: '', updatedAt: '' } as CollectionEntry);
+        } else {
+          setExistingEntry(entry);
+        }
       } else {
         setNotFound(true);
       }
@@ -43,7 +52,7 @@ function CardEditorPage() {
     return () => {
       cancelled = true;
     };
-  }, [entryId]);
+  }, [entryId, cloneFromId, isCloneMode]);
 
   const form = useCardForm(existingEntry);
 
@@ -127,7 +136,7 @@ function CardEditorPage() {
             </svg>
           </button>
           <h1 className={styles.title}>
-            {isEditMode ? 'Edit Card' : 'Add Card'}
+            {isEditMode ? 'Edit Card' : isCloneMode ? 'Clone Card' : 'Add Card'}
           </h1>
         </div>
         <div className={styles.headerActions}>

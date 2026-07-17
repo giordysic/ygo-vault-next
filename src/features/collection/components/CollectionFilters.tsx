@@ -55,6 +55,18 @@ export function CollectionFilters({ entries }: CollectionFiltersProps) {
     () => [{ value: '', label: 'All Tags' }, ...uniqueTags(entries).map((v) => ({ value: v, label: v }))],
     [entries],
   );
+  const languageOptions = useMemo(
+    () => [{ value: '', label: 'All Languages' }, ...uniqueValues(entries, 'language').map((v) => ({ value: v, label: v }))],
+    [entries],
+  );
+  const conditionOptions = useMemo(
+    () => [{ value: '', label: 'All Conditions' }, ...uniqueValues(entries, 'condition').map((v) => ({ value: v, label: v }))],
+    [entries],
+  );
+  const mdRarityOptions = useMemo(
+    () => [{ value: '', label: 'All MD Rarities' }, ...uniqueValues(entries, 'mdRarity').map((v) => ({ value: v, label: v }))],
+    [entries],
+  );
 
   const activeFilterCount = Object.values(filters).reduce((sum, arr) => sum + arr.length, 0);
 
@@ -124,6 +136,24 @@ export function CollectionFilters({ entries }: CollectionFiltersProps) {
           options={tagOptions}
           value=""
           onChange={(e) => handleSelect('tags', e.target.value)}
+        />
+        <Select
+          label="Language"
+          options={languageOptions}
+          value=""
+          onChange={(e) => handleSelect('language', e.target.value)}
+        />
+        <Select
+          label="Condition"
+          options={conditionOptions}
+          value=""
+          onChange={(e) => handleSelect('condition', e.target.value)}
+        />
+        <Select
+          label="MD Rarity"
+          options={mdRarityOptions}
+          value=""
+          onChange={(e) => handleSelect('mdRarity', e.target.value)}
         />
       </div>
 

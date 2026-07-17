@@ -55,4 +55,13 @@
   --bg-hover: rgb(148 163 184 / 0.08);
   --bg-active: rgb(148 163 184 / 0.12);
   --bg-selected: rgb(59 130 246 / 0.15);
+
+  /* ---- Shorthand Aliases ---- */
+  /* Used by feature components for convenience */
+  --accent: var(--accent-primary);
+  --border: var(--border-soft);
+  --surface-primary: var(--bg-surface-1);
+  --surface-secondary: var(--bg-surface-2);
+  --surface-hover: var(--bg-hover);
+  --nav-height: 64px;
 }

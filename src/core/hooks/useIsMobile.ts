@@ -14,12 +14,12 @@ export function useIsMobile(breakpoint: number = BREAKPOINTS.mobile): boolean {
   useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
 
-    const handleChange = (e: MediaQueryListEvent) => {
-      setIsMobile(e.matches);
+    const handleChange = () => {
+      setIsMobile(mql.matches);
     };
 
-    // Set initial value from the media query
-    setIsMobile(mql.matches);
+    // Sync initial value from the media query
+    handleChange();
 
     mql.addEventListener('change', handleChange);
     return () => {

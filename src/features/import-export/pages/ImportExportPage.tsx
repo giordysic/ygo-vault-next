@@ -16,6 +16,7 @@ function ImportExportPage() {
     error: importError,
     preview,
     result,
+    legacyInfo,
     readFile,
     applyImport,
     clearPreview,
@@ -136,6 +137,17 @@ function ImportExportPage() {
           className={styles.hiddenInput}
           onChange={(e) => handleFileSelect(e.target.files)}
         />
+
+        {legacyInfo && legacyInfo.isLegacy && (
+          <div className={styles.legacyBanner}>
+            <span className={styles.legacyBannerTitle}>
+              Legacy format detected: {legacyInfo.format}
+            </span>
+            <span className={styles.legacyBannerDetail}>
+              {legacyInfo.recordCount} records found. Data will be automatically mapped to the new schema.
+            </span>
+          </div>
+        )}
 
         {preview && (
           <ImportPreview

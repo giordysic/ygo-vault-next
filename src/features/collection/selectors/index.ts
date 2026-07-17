@@ -57,6 +57,15 @@ function matchesFilters(entry: CollectionEntry, filters: CollectionFilters): boo
       return false;
     }
   }
+  if (filters.language.length > 0 && (!entry.language || !filters.language.includes(entry.language))) {
+    return false;
+  }
+  if (filters.condition.length > 0 && (!entry.condition || !filters.condition.includes(entry.condition))) {
+    return false;
+  }
+  if (filters.mdRarity.length > 0 && (!entry.mdRarity || !filters.mdRarity.includes(entry.mdRarity))) {
+    return false;
+  }
   return true;
 }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './Textarea.module.css';
 
 export interface TextareaProps
@@ -10,7 +10,8 @@ export interface TextareaProps
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, hint, rows = 4, className, id, ...rest }, ref) => {
-    const textareaId = id ?? React.useId();
+    const generatedId = useId();
+    const textareaId = id ?? generatedId;
 
     const wrapperClasses = [styles.wrapper, className ?? '']
       .filter(Boolean)

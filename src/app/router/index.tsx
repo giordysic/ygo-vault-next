@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // ==========================================================================
 // App Router
 // React Router configuration with lazy-loaded routes and AppShell layout.
@@ -10,6 +11,7 @@ import {
   type RouteObject,
 } from 'react-router-dom';
 import { AppShell } from '@/app/shell/AppShell';
+import { NotFoundPage } from '@/app/pages/NotFoundPage';
 
 // ---------------------------------------------------------------------------
 // Lazy-loaded page components
@@ -37,7 +39,6 @@ const ImportExportPage = lazy(
 const SettingsPage = lazy(
   () => import('@/features/settings/pages/SettingsPage'),
 );
-
 // ---------------------------------------------------------------------------
 // Suspense wrapper for lazy pages
 // ---------------------------------------------------------------------------
@@ -148,6 +149,10 @@ const routes: RouteObject[] = [
             <SettingsPage />
           </LazyPage>
         ),
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
   },

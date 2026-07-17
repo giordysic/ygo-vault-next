@@ -1,6 +1,7 @@
 import { importPayloadSchema, type ImportPayload, type ImportResult } from '../../schemas/import.schemas';
 import type { CollectionEntry } from '../../schemas/collection.schemas';
 import type { Deck } from '../../schemas/deck.schemas';
+import { detectLegacyFormat, extractLegacyRecords, mapLegacyCollection } from './legacyAdapter';
 import { collectionRepository } from '../../storage/repositories/collectionRepository';
 import { deckRepository } from '../../storage/repositories/deckRepository';
 import { settingsRepository } from '../../storage/repositories/settingsRepository';
@@ -45,7 +46,33 @@ export const importService = {
 
     const obj = data as Record<string, unknown>;
 
-    // Handle case where data is a bare array of entries
+    // Use the dedicated legacy adapter for proper field mapping
+    const detection = detectLegacyFormat(data);
+    if (detection.isLegacy) {
+      const records = extractLegacyRecords(data);
+      if (records && records.length > 0) {
+        const { entries } = mapLegacyCollection(records);
+
+        const decks = (obj['decks'] as Deck[] | undefined) ?? undefined;
+
+        const adapted: ImportPayload = {
+          metadata: {
+            appVersion: (obj['version'] as string) ?? 'legacy',
+            schemaVersion: 0,
+            exportedAt: (obj['exportedAt'] as string) ?? nowISO(),
+            entryCount: entries.length,
+            deckCount: decks?.length,
+          },
+          collectionEntries: entries,
+          decks,
+        };
+
+        const result = importPayloadSchema.safeParse(adapted);
+        return result.success ? result.data : null;
+      }
+    }
+
+    // Handle case where data is a bare array of entries (already in correct format)
     if (Array.isArray(data)) {
       const adapted: ImportPayload = {
         metadata: {
@@ -60,7 +87,7 @@ export const importService = {
       return result.success ? result.data : null;
     }
 
-    // Handle legacy format with different field names
+    // Handle legacy format with different field names (already in correct schema)
     if (obj['cards'] || obj['collection'] || obj['entries']) {
       const entries = (obj['cards'] ?? obj['collection'] ?? obj['entries']) as CollectionEntry[];
       const decks = (obj['decks'] as Deck[] | undefined) ?? undefined;
