@@ -41,18 +41,19 @@ jobs:
       - name: Package Android signing tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libc++1 libc++abi1
+          sudo apt-get install -y libc++1 libc++abi1 libunwind-18
           mkdir -p android-signing-tools
+          ZIPALIGN="$ANDROID_HOME/build-tools/35.0.0/zipalign"
           cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
-          cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" android-signing-tools/
+          cp "$ZIPALIGN" android-signing-tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/aapt" android-signing-tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" android-signing-tools/
-          CXX_PATH="$(ldconfig -p | awk '/libc\+\+\.so\.1/{print $NF; exit}')"
-          ABI_PATH="$(ldconfig -p | awk '/libc\+\+abi\.so\.1/{print $NF; exit}')"
-          test -n "$CXX_PATH"
-          test -n "$ABI_PATH"
-          cp "$CXX_PATH" android-signing-tools/libc++.so.1
-          cp "$ABI_PATH" android-signing-tools/libc++abi.so.1
+          for LIB_NAME in 'libc++.so' 'libc++abi.so.1' 'libunwind.so.1'; do
+            LIB_PATH="$(ldd "$ZIPALIGN" | awk -v name="$LIB_NAME" '$1==name {print $3; exit}')"
+            test -n "$LIB_PATH"
+            test -f "$LIB_PATH"
+            cp -L "$LIB_PATH" "android-signing-tools/$LIB_NAME"
+          done
           chmod +x android-signing-tools/apksigner android-signing-tools/zipalign android-signing-tools/aapt
           LD_LIBRARY_PATH="$PWD/android-signing-tools" android-signing-tools/zipalign -h >/dev/null 2>&1 || true
           tar -czf android-signing-tools-linux.tar.gz android-signing-tools
