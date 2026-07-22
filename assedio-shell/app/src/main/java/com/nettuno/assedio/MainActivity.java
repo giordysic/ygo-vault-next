@@ -61,7 +61,7 @@ public final class MainActivity extends Activity {
         destroyCurrentWebView();
 
         try {
-            final WebView candidate = new WebView(getApplicationContext());
+            final WebView candidate = new WebView(MainActivity.this);
             candidate.setBackgroundColor(BACKGROUND);
             candidate.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
