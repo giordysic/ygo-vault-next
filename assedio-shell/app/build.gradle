@@ -8,8 +8,8 @@ android {
         applicationId 'com.nettuno.assedio'
         minSdk 24
         targetSdk 35
-        versionCode 12
-        versionName '10.0.2'
+        versionCode 14
+        versionName '10.0.4'
     }
 
     buildTypes {
