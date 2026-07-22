@@ -37,11 +37,21 @@ jobs:
           grep -q "package: name='com.nettuno.assedio'" apk-badging.txt
           grep -q "versionName='10.0.0'" apk-badging.txt
           unzip -t ASSEDIO-SHELL-10.0.0.apk
+      - name: Package Android signing tools
+        run: |
+          mkdir -p android-signing-tools/lib64
+          cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib64/libc++_shared.so" android-signing-tools/lib64/ || true
+          chmod +x android-signing-tools/apksigner android-signing-tools/zipalign
+          tar -czf android-signing-tools-linux.tar.gz android-signing-tools
       - uses: actions/upload-artifact@v4
         with:
           name: ASSEDIO-SHELL-APK
           path: |
             assedio-shell/ASSEDIO-SHELL-10.0.0.apk
             assedio-shell/apk-badging.txt
+            assedio-shell/android-signing-tools-linux.tar.gz
           if-no-files-found: error
           retention-days: 30
