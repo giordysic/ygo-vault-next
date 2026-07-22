@@ -31,32 +31,36 @@ jobs:
         run: gradle --no-daemon :app:assembleDebug
       - name: Verify shell APK
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-10.0.4.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-10.0.4.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-10.0.4.apk | tee apk-badging.txt
+          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-10.0.5.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-10.0.5.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-10.0.5.apk | tee apk-badging.txt
           grep -q "package: name='com.nettuno.assedio'" apk-badging.txt
-          grep -q "versionCode='14'" apk-badging.txt
-          grep -q "versionName='10.0.4'" apk-badging.txt
-          unzip -t ASSEDIO-SHELL-10.0.4.apk
+          grep -q "versionCode='15'" apk-badging.txt
+          grep -q "versionName='10.0.5'" apk-badging.txt
+          unzip -t ASSEDIO-SHELL-10.0.5.apk
       - name: Package Android signing tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libc++1
+          sudo apt-get install -y libc++1 libc++abi1
           mkdir -p android-signing-tools
           cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" android-signing-tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/aapt" android-signing-tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" android-signing-tools/
           CXX_PATH="$(ldconfig -p | awk '/libc\+\+\.so\.1/{print $NF; exit}')"
+          ABI_PATH="$(ldconfig -p | awk '/libc\+\+abi\.so\.1/{print $NF; exit}')"
           test -n "$CXX_PATH"
-          cp "$CXX_PATH" android-signing-tools/libc++.so
+          test -n "$ABI_PATH"
+          cp "$CXX_PATH" android-signing-tools/libc++.so.1
+          cp "$ABI_PATH" android-signing-tools/libc++abi.so.1
           chmod +x android-signing-tools/apksigner android-signing-tools/zipalign android-signing-tools/aapt
+          LD_LIBRARY_PATH="$PWD/android-signing-tools" android-signing-tools/zipalign -h >/dev/null
           tar -czf android-signing-tools-linux.tar.gz android-signing-tools
       - uses: actions/upload-artifact@v4
         with:
           name: ASSEDIO-SHELL-APK
           path: |
-            assedio-shell/ASSEDIO-SHELL-10.0.4.apk
+            assedio-shell/ASSEDIO-SHELL-10.0.5.apk
             assedio-shell/apk-badging.txt
             assedio-shell/android-signing-tools-linux.tar.gz
           if-no-files-found: error
