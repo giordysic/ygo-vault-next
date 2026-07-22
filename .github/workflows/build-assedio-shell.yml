@@ -39,12 +39,18 @@ jobs:
           unzip -t ASSEDIO-SHELL-10.0.0.apk
       - name: Package Android signing tools
         run: |
-          mkdir -p android-signing-tools/lib64
+          sudo apt-get update
+          sudo apt-get install -y libc++1
+          mkdir -p android-signing-tools
           cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/aapt" android-signing-tools/
           cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" android-signing-tools/
-          cp "$ANDROID_HOME/build-tools/35.0.0/lib64/libc++_shared.so" android-signing-tools/lib64/ || true
-          chmod +x android-signing-tools/apksigner android-signing-tools/zipalign
+          CXX_PATH="$(ldconfig -p | awk '/libc\+\+\.so\.1/{print $NF; exit}')"
+          test -n "$CXX_PATH"
+          cp "$CXX_PATH" android-signing-tools/libc++.so
+          chmod +x android-signing-tools/apksigner android-signing-tools/zipalign android-signing-tools/aapt
+          LD_LIBRARY_PATH="$PWD/android-signing-tools" android-signing-tools/zipalign -h >/dev/null
           tar -czf android-signing-tools-linux.tar.gz android-signing-tools
       - uses: actions/upload-artifact@v4
         with:
