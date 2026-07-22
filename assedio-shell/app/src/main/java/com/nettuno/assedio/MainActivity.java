@@ -3,108 +3,277 @@ package com.nettuno.assedio;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
+import android.view.ViewGroup;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public final class MainActivity extends Activity {
-    private WebView webView;
+    private static final String TAG = "ASSEDIO";
+    private static final String START_URL = "file:///android_asset/www/index.html";
+    private static final int BACKGROUND = 0xFF05020A;
+    private static final int MAX_RENDERER_RECOVERIES = 2;
 
-    @SuppressLint("SetJavaScriptEnabled")
+    private FrameLayout root;
+    private WebView webView;
+    private int rendererRecoveries;
+    private boolean safeMode;
+    private Thread.UncaughtExceptionHandler previousExceptionHandler;
+
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setStatusBarColor(Color.rgb(5, 2, 10));
-        getWindow().setNavigationBarColor(Color.rgb(5, 2, 10));
-        applyImmersiveMode();
+        installCrashLogger();
 
-        webView = new WebView(this);
-        webView.setBackgroundColor(Color.rgb(5, 2, 10));
-        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
+        root = new FrameLayout(this);
+        root.setBackgroundColor(BACKGROUND);
+        setContentView(root);
 
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(false);
-        settings.setAllowFileAccessFromFileURLs(true);
-        settings.setAllowUniversalAccessFromFileURLs(false);
-        settings.setMediaPlaybackRequiresUserGesture(true);
-        settings.setBuiltInZoomControls(false);
-        settings.setDisplayZoomControls(false);
-        settings.setSupportZoom(false);
-        settings.setTextZoom(100);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-
-        setContentView(webView);
-        if (state == null) {
-            webView.loadUrl("file:///android_asset/www/index.html");
-        } else {
-            webView.restoreState(state);
-        }
+        // WebView state is intentionally not restored. Serialized renderer state can become
+        // invalid after WebView/System updates and has caused startup loops on some devices.
+        createWebView(Build.VERSION.SDK_INT >= 36);
     }
 
-    private void applyImmersiveMode() {
-        if (android.os.Build.VERSION.SDK_INT >= 30) {
-            WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
-                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    @SuppressLint("SetJavaScriptEnabled")
+    private void createWebView(boolean useSafeMode) {
+        safeMode = useSafeMode;
+        destroyCurrentWebView();
+
+        try {
+            final WebView candidate = new WebView(getApplicationContext());
+            candidate.setBackgroundColor(BACKGROUND);
+            candidate.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
+            // Android 16/WebView GPU combinations can terminate the renderer during startup.
+            // Software rendering is used as the default safety path on API 36+ and after a crash.
+            if (safeMode) {
+                candidate.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             }
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            );
+
+            WebSettings settings = candidate.getSettings();
+            settings.setJavaScriptEnabled(true);
+            settings.setDomStorageEnabled(true);
+            settings.setDatabaseEnabled(true);
+            settings.setAllowFileAccess(false);
+            settings.setAllowContentAccess(false);
+            settings.setAllowFileAccessFromFileURLs(false);
+            settings.setAllowUniversalAccessFromFileURLs(false);
+            settings.setMediaPlaybackRequiresUserGesture(true);
+            settings.setBuiltInZoomControls(false);
+            settings.setDisplayZoomControls(false);
+            settings.setSupportZoom(false);
+            settings.setTextZoom(100);
+            settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+            settings.setSaveFormData(false);
+
+            if (Build.VERSION.SDK_INT >= 26) {
+                candidate.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false);
+                candidate.setWebViewClient(new RendererAwareClient());
+            } else {
+                candidate.setWebViewClient(new BasicClient());
+            }
+            candidate.setWebChromeClient(new WebChromeClient());
+
+            webView = candidate;
+            root.addView(candidate, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            ));
+            candidate.loadUrl(START_URL);
+        } catch (Throwable error) {
+            writeCrashLog("createWebView", error);
+            showNativeError("Avvio WebView non riuscito", error.getClass().getSimpleName());
         }
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) applyImmersiveMode();
+    private class BasicClient extends WebViewClient {
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            rendererRecoveries = 0;
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
+            if (request != null && request.isForMainFrame()) {
+                writeTextLog("Main frame error: " + error);
+            }
+        }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        webView.saveState(outState);
-        super.onSaveInstanceState(outState);
+    private final class RendererAwareClient extends BasicClient {
+        @Override
+        public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+            String reason = detail != null && detail.didCrash() ? "renderer crash" : "renderer killed";
+            writeTextLog(reason + "; priority=" + (detail == null ? "unknown" : detail.rendererPriorityAtExit()));
+
+            if (view != null && view.getParent() instanceof ViewGroup) {
+                ((ViewGroup) view.getParent()).removeView(view);
+            }
+            try {
+                if (view != null) view.destroy();
+            } catch (Throwable ignored) {
+                Log.w(TAG, "Renderer cleanup failed", ignored);
+            }
+            if (webView == view) webView = null;
+
+            rendererRecoveries++;
+            if (rendererRecoveries <= MAX_RENDERER_RECOVERIES) {
+                root.postDelayed(() -> createWebView(true), 350L);
+            } else {
+                root.post(() -> showNativeError(
+                    "Il componente WebView di Android si è arrestato",
+                    "Aggiorna Android System WebView/Chrome e premi Riprova. L’app non verrà chiusa."
+                ));
+            }
+            return true;
+        }
+    }
+
+    private void showNativeError(String title, String detail) {
+        destroyCurrentWebView();
+        root.removeAllViews();
+
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setGravity(Gravity.CENTER);
+        panel.setPadding(dp(28), dp(28), dp(28), dp(28));
+        panel.setBackgroundColor(BACKGROUND);
+
+        TextView heading = new TextView(this);
+        heading.setText(title);
+        heading.setTextColor(Color.WHITE);
+        heading.setTextSize(22f);
+        heading.setGravity(Gravity.CENTER);
+
+        TextView message = new TextView(this);
+        message.setText(detail == null ? "Errore sconosciuto" : detail);
+        message.setTextColor(0xFFCAC4D0);
+        message.setTextSize(15f);
+        message.setGravity(Gravity.CENTER);
+        message.setPadding(0, dp(16), 0, dp(24));
+
+        Button retry = new Button(this);
+        retry.setText("RIPROVA IN MODALITÀ SICURA");
+        retry.setOnClickListener(v -> {
+            rendererRecoveries = 0;
+            createWebView(true);
+        });
+
+        panel.addView(heading, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        panel.addView(message, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        panel.addView(retry, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        root.addView(panel, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void destroyCurrentWebView() {
+        WebView current = webView;
+        webView = null;
+        if (current == null) return;
+
+        try {
+            if (current.getParent() instanceof ViewGroup) {
+                ((ViewGroup) current.getParent()).removeView(current);
+            }
+            current.stopLoading();
+            current.setWebChromeClient(null);
+            current.setWebViewClient(new WebViewClient());
+            current.removeAllViews();
+            current.destroy();
+        } catch (Throwable error) {
+            writeCrashLog("destroyWebView", error);
+        }
+    }
+
+    private void installCrashLogger() {
+        previousExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((thread, error) -> {
+            writeCrashLog("uncaught-" + thread.getName(), error);
+            if (previousExceptionHandler != null) {
+                previousExceptionHandler.uncaughtException(thread, error);
+            }
+        });
+    }
+
+    private synchronized void writeCrashLog(String source, Throwable error) {
+        StringWriter buffer = new StringWriter();
+        error.printStackTrace(new PrintWriter(buffer));
+        writeTextLog(source + "\n" + buffer);
+    }
+
+    private synchronized void writeTextLog(String text) {
+        try {
+            File file = new File(getFilesDir(), "assedio-crash.log");
+            try (FileWriter writer = new FileWriter(file, true)) {
+                String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ITALY).format(new Date());
+                writer.write("[" + timestamp + "] " + text + "\n\n");
+            }
+        } catch (Throwable ignored) {
+            Log.e(TAG, "Unable to write crash log", ignored);
+        }
     }
 
     @Override
     public void onBackPressed() {
-        webView.evaluateJavascript(
-            "(function(){try{return !!(window.androidBack&&window.androidBack());}catch(e){return false;}})()",
-            value -> {
-                if (!"true".equals(value)) {
-                    if (webView.canGoBack()) webView.goBack();
-                    else moveTaskToBack(true);
+        WebView current = webView;
+        if (current == null) {
+            moveTaskToBack(true);
+            return;
+        }
+
+        try {
+            current.evaluateJavascript(
+                "(function(){try{return !!(window.androidBack&&window.androidBack());}catch(e){return false;}})()",
+                value -> {
+                    WebView active = webView;
+                    if (!"true".equals(value)) {
+                        if (active != null && active.canGoBack()) active.goBack();
+                        else moveTaskToBack(true);
+                    }
                 }
-            }
-        );
+            );
+        } catch (Throwable error) {
+            writeCrashLog("back", error);
+            moveTaskToBack(true);
+        }
     }
 
     @Override
     protected void onDestroy() {
-        if (webView != null) {
-            webView.loadUrl("about:blank");
-            webView.stopLoading();
-            webView.destroy();
-            webView = null;
+        destroyCurrentWebView();
+        if (Thread.getDefaultUncaughtExceptionHandler() != previousExceptionHandler) {
+            Thread.setDefaultUncaughtExceptionHandler(previousExceptionHandler);
         }
         super.onDestroy();
     }
