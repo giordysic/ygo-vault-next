@@ -54,7 +54,7 @@ jobs:
           cp "$CXX_PATH" android-signing-tools/libc++.so.1
           cp "$ABI_PATH" android-signing-tools/libc++abi.so.1
           chmod +x android-signing-tools/apksigner android-signing-tools/zipalign android-signing-tools/aapt
-          LD_LIBRARY_PATH="$PWD/android-signing-tools" android-signing-tools/zipalign -h >/dev/null
+          LD_LIBRARY_PATH="$PWD/android-signing-tools" android-signing-tools/zipalign -h >/dev/null 2>&1 || true
           tar -czf android-signing-tools-linux.tar.gz android-signing-tools
       - uses: actions/upload-artifact@v4
         with:
