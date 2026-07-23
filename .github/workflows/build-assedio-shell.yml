@@ -31,13 +31,13 @@ jobs:
         run: gradle --no-daemon :app:assembleDebug
       - name: Verify shell APK
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-1.0.0.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-1.0.0.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-1.0.0.apk | tee apk-badging.txt
+          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-1.0.1.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-1.0.1.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-1.0.1.apk | tee apk-badging.txt
           grep -q "package: name='com.nettuno.assedio'" apk-badging.txt
-          grep -q "versionCode='100'" apk-badging.txt
-          grep -q "versionName='1.0.0'" apk-badging.txt
-          unzip -t ASSEDIO-SHELL-1.0.0.apk
+          grep -q "versionCode='101'" apk-badging.txt
+          grep -q "versionName='1.0.1'" apk-badging.txt
+          unzip -t ASSEDIO-SHELL-1.0.1.apk
       - name: Package Android signing tools
         run: |
           sudo apt-get update
@@ -63,7 +63,7 @@ jobs:
         with:
           name: ASSEDIO-SHELL-APK
           path: |
-            assedio-shell/ASSEDIO-SHELL-1.0.0.apk
+            assedio-shell/ASSEDIO-SHELL-1.0.1.apk
             assedio-shell/apk-badging.txt
             assedio-shell/android-signing-tools-linux.tar.gz
           if-no-files-found: error
