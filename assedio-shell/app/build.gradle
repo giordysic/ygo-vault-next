@@ -5,11 +5,11 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.nettuno.assedio.release'
+        applicationId 'com.nettuno.assedio'
         minSdk 24
         targetSdk 35
-        versionCode 110
-        versionName '1.1.0'
+        versionCode 111
+        versionName '1.1.1'
     }
 
     buildTypes {
