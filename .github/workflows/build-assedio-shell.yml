@@ -21,24 +21,35 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - uses: android-actions/setup-android@v3
       - name: Install Android SDK
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+      - name: Package browser MQTT client
+        run: |
+          mkdir -p online-vendor npm-package
+          npm pack mqtt@5.15.1 --silent > mqtt-tarball.txt
+          tar -xzf "$(cat mqtt-tarball.txt)" -C npm-package
+          cp npm-package/package/dist/mqtt.min.js online-vendor/mqtt.min.js
+          test -s online-vendor/mqtt.min.js
+          sha256sum online-vendor/mqtt.min.js > online-vendor/mqtt.min.js.sha256
       - name: Build APK
         run: gradle --no-daemon :app:assembleDebug
       - name: Verify shell APK
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-1.0.3-CLEAN.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-1.0.3-CLEAN.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-1.0.3-CLEAN.apk | tee apk-badging.txt
+          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-1.1.0-ONLINE.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-1.1.0-ONLINE.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-1.1.0-ONLINE.apk | tee apk-badging.txt
           grep -q "package: name='com.nettuno.assedio.release'" apk-badging.txt
-          grep -q "versionCode='103'" apk-badging.txt
-          grep -q "versionName='1.0.3'" apk-badging.txt
+          grep -q "versionCode='110'" apk-badging.txt
+          grep -q "versionName='1.1.0'" apk-badging.txt
           grep -q "application-icon-160:'res/" apk-badging.txt
-          unzip -t ASSEDIO-SHELL-1.0.3-CLEAN.apk
+          unzip -t ASSEDIO-SHELL-1.1.0-ONLINE.apk
       - name: Package Android signing tools
         run: |
           sudo apt-get update
@@ -64,8 +75,10 @@ jobs:
         with:
           name: ASSEDIO-SHELL-APK
           path: |
-            assedio-shell/ASSEDIO-SHELL-1.0.3-CLEAN.apk
+            assedio-shell/ASSEDIO-SHELL-1.1.0-ONLINE.apk
             assedio-shell/apk-badging.txt
             assedio-shell/android-signing-tools-linux.tar.gz
+            assedio-shell/online-vendor/mqtt.min.js
+            assedio-shell/online-vendor/mqtt.min.js.sha256
           if-no-files-found: error
           retention-days: 30
