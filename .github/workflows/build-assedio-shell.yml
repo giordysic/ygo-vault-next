@@ -42,14 +42,14 @@ jobs:
         run: gradle --no-daemon :app:assembleDebug
       - name: Verify shell APK
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-1.1.1-LEGACY.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-1.1.1-LEGACY.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-1.1.1-LEGACY.apk | tee apk-badging.txt
-          grep -q "package: name='com.nettuno.assedio'" apk-badging.txt
-          grep -q "versionCode='111'" apk-badging.txt
-          grep -q "versionName='1.1.1'" apk-badging.txt
-          grep -q "application-icon-160:'res/" apk-badging.txt
-          unzip -t ASSEDIO-SHELL-1.1.1-LEGACY.apk
+          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-1.2.0-FINAL.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-1.2.0-FINAL.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-1.2.0-FINAL.apk | tee apk-badging.txt
+          grep -q "package: name='com.nettuno.assedio.final'" apk-badging.txt
+          grep -q "versionCode='120'" apk-badging.txt
+          grep -q "versionName='1.2.0'" apk-badging.txt
+          grep -q "application-label:'ASSEDIO! Online'" apk-badging.txt
+          unzip -t ASSEDIO-SHELL-1.2.0-FINAL.apk
       - name: Package Android signing tools
         run: |
           sudo apt-get update
@@ -75,7 +75,7 @@ jobs:
         with:
           name: ASSEDIO-SHELL-APK
           path: |
-            assedio-shell/ASSEDIO-SHELL-1.1.1-LEGACY.apk
+            assedio-shell/ASSEDIO-SHELL-1.2.0-FINAL.apk
             assedio-shell/apk-badging.txt
             assedio-shell/android-signing-tools-linux.tar.gz
             assedio-shell/online-vendor/mqtt.min.js
