@@ -8,8 +8,8 @@ android {
         applicationId 'com.nettuno.assedio.final'
         minSdk 24
         targetSdk 35
-        versionCode 141
-        versionName '1.4.1'
+        versionCode 142
+        versionName '1.4.2'
     }
 
     buildTypes {
@@ -22,4 +22,4 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 }
-// ASSEDIO 1.4.1 shell; reliable menu input, visible discards, CPU Extreme.
+// ASSEDIO 1.4.2 shell; full game assets are packaged before final signing.
