@@ -5,6 +5,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +38,8 @@ public final class MainActivity extends Activity {
     private boolean softwareFallback;
     private LanController lanController;
     private Runnable pendingPermissionAction;
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -51,6 +57,7 @@ public final class MainActivity extends Activity {
         root.setBackgroundColor(BG);
         setContentView(root);
         createWebView(false);
+        registerNetworkWatcher();
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
@@ -120,8 +127,39 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void send(String rawJson) { lanController.send(rawJson); }
         @JavascriptInterface public void disconnect() { lanController.disconnect(); }
         @JavascriptInterface public void ready() { lanController.reannounce(); }
+        @JavascriptInterface public void recover() { lanController.onNetworkChanged(); }
         @JavascriptInterface public String localIp() { return LanController.findLocalIpv4(); }
     }
+
+    private void registerNetworkWatcher() {
+        try {
+            connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            if (connectivityManager == null) return;
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override public void onAvailable(Network network) { notifyLanNetworkChanged(); }
+                @Override public void onLost(Network network) { notifyLanNetworkChanged(); }
+                @Override public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+                    notifyLanNetworkChanged();
+                }
+            };
+            NetworkRequest request = new NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build();
+            connectivityManager.registerNetworkCallback(request, networkCallback);
+        } catch (Throwable ignored) {}
+    }
+
+    private void notifyLanNetworkChanged() {
+        FrameLayout currentRoot = root;
+        if (currentRoot == null) return;
+        currentRoot.removeCallbacks(networkChangeRunnable);
+        currentRoot.postDelayed(networkChangeRunnable, 250L);
+    }
+
+    private final Runnable networkChangeRunnable = () -> {
+        LanController current = lanController;
+        if (current != null) current.onNetworkChanged();
+    };
 
     private void withLanPermission(Runnable action) {
         if (Build.VERSION.SDK_INT < 33 || checkSelfPermission(Manifest.permission.NEARBY_WIFI_DEVICES) == PackageManager.PERMISSION_GRANTED) {
@@ -192,6 +230,21 @@ public final class MainActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        WebView current = webView;
+        if (current != null) current.onResume();
+        notifyLanNetworkChanged();
+    }
+
+    @Override
+    protected void onPause() {
+        WebView current = webView;
+        if (current != null) current.onPause();
+        super.onPause();
+    }
+
+    @Override
     public void onBackPressed() {
         WebView view = webView;
         if (view == null) { moveTaskToBack(true); return; }
@@ -206,6 +259,10 @@ public final class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (connectivityManager != null && networkCallback != null) {
+            try { connectivityManager.unregisterNetworkCallback(networkCallback); } catch (Throwable ignored) {}
+        }
+        if (root != null) root.removeCallbacks(networkChangeRunnable);
         if (lanController != null) lanController.shutdown();
         destroyWebView();
         super.onDestroy();
