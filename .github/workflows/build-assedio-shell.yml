@@ -1,0 +1,84 @@
+name: Build ASSEDIO Shell APK
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: assedio-shell
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Package browser MQTT client
+        run: |
+          mkdir -p online-vendor npm-package
+          npm pack mqtt@5.15.1 --silent > mqtt-tarball.txt
+          tar -xzf "$(cat mqtt-tarball.txt)" -C npm-package
+          cp npm-package/package/dist/mqtt.min.js online-vendor/mqtt.min.js
+          test -s online-vendor/mqtt.min.js
+          sha256sum online-vendor/mqtt.min.js > online-vendor/mqtt.min.js.sha256
+      - name: Build APK
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify shell APK
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk ASSEDIO-SHELL-1.4.6.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs ASSEDIO-SHELL-1.4.6.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging ASSEDIO-SHELL-1.4.6.apk | tee apk-badging.txt
+          grep -q "package: name='com.nettuno.assedio.final'" apk-badging.txt
+          grep -q "versionCode='146'" apk-badging.txt
+          grep -q "versionName='1.4.6'" apk-badging.txt
+          grep -q "application-label:'ASSEDIO! Online'" apk-badging.txt
+          unzip -t ASSEDIO-SHELL-1.4.6.apk
+      - name: Package Android signing tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libc++1 libc++abi1 libunwind-18
+          mkdir -p android-signing-tools
+          cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/aapt" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" android-signing-tools/
+          CXX_PATH="$(ldconfig -p | awk '/libc\+\+\.so\.1/{print $NF; exit}')"
+          ABI_PATH="$(ldconfig -p | awk '/libc\+\+abi\.so\.1/{print $NF; exit}')"
+          UNWIND_PATH="$(ldconfig -p | awk '/libunwind\.so\.1/{print $NF; exit}')"
+          test -f "$CXX_PATH"
+          test -f "$ABI_PATH"
+          test -f "$UNWIND_PATH"
+          cp -L "$CXX_PATH" android-signing-tools/libc++.so
+          cp -L "$ABI_PATH" android-signing-tools/libc++abi.so.1
+          cp -L "$UNWIND_PATH" android-signing-tools/libunwind.so.1
+          chmod +x android-signing-tools/apksigner android-signing-tools/zipalign android-signing-tools/aapt
+          LD_LIBRARY_PATH="$PWD/android-signing-tools" android-signing-tools/zipalign -h >/dev/null 2>&1 || true
+          tar -czf android-signing-tools-linux.tar.gz android-signing-tools
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ASSEDIO-SHELL-APK
+          path: |
+            assedio-shell/ASSEDIO-SHELL-1.4.6.apk
+            assedio-shell/apk-badging.txt
+            assedio-shell/android-signing-tools-linux.tar.gz
+            assedio-shell/online-vendor/mqtt.min.js
+            assedio-shell/online-vendor/mqtt.min.js.sha256
+          if-no-files-found: error
+          retention-days: 30

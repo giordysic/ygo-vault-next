@@ -1,0 +1,25 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.nettuno.assedio'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.nettuno.assedio.final'
+        minSdk 24
+        targetSdk 35
+        versionCode 146
+        versionName '1.4.6'
+    }
+
+    buildTypes {
+        debug { debuggable false }
+        release { minifyEnabled false }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+// ASSEDIO 1.4.6 shell; canonical discard/reshuffle state repair build.
