@@ -22,4 +22,4 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 }
-// ASSEDIO 1.4.6 shell; full game assets are packaged before final signing.
+// ASSEDIO 1.4.6 shell; canonical discard/reshuffle state repair build.
