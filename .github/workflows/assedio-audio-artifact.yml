@@ -1,0 +1,26 @@
+name: Transfer ASSEDIO Audio Megapack Artifact
+
+on:
+  push:
+    branches: [assedio-audio-public-temp-20260831]
+    paths: [.github/workflows/assedio-audio-artifact.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release ZIP
+        run: |
+          curl -fL --retry 5 'https://github.com/giordysic/ygo-vault-next/releases/download/assedio-audio-public-20260831/ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip' -o ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip
+          ls -lh ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip
+          sha256sum ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASSEDIO_AUDIO_VFX_MEGAPACK_FULL_TRANSFER
+          path: ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip
+          compression-level: 0
+          retention-days: 1
