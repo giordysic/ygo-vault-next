@@ -1,0 +1,142 @@
+name: Build ASSEDIO Audio Megapack Public
+
+on:
+  push:
+    branches: [assedio-audio-public-temp-20260831]
+    paths: [.github/workflows/assedio-audio-public.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build megapack
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,re,time,csv,json,hashlib,shutil,zipfile,urllib.request,urllib.parse
+          from pathlib import Path
+          ROOT=Path('ASSEDIO_AUDIO_VFX_MEGAPACK_FULL')
+          RAW=ROOT/'19_RAW_SOURCE_PACKS'; PROV=ROOT/'00_LICENSE_PROVENANCE'
+          folders=['00_LICENSE_PROVENANCE','01_UI_MENU','02_CARTE_DECK_SCARTI','03_ARMI_IMPATTI_FOLEY','04_MAGIA_MANA','05_NATURA_LINFA_DRUIDI','06_OSCURO_CORRUZIONE','07_MONETE_ORO_MERCANTI','08_EVOCAZIONI_CREATURE','09_ARTEFICE_COSTRUTTI','10_JOLLY_SPECCHIO','11_CASTELLO_ASSEDIO','12_AMBIENCE_MAPPE','13_STORIA_LOCATION','14_MUSICHE_BATTLE','15_MUSICHE_EXPLORATION','16_VICTORY_DEFEAT_STINGER','17_BOSS_SPECIAL','18_VFX_PARTICLES','19_RAW_SOURCE_PACKS','20_LINK_ONLY_NON_REDISTRIBUTABLE']
+          for f in folders:(ROOT/f).mkdir(parents=True,exist_ok=True)
+          UA={'User-Agent':'Mozilla/5.0 ASSEDIO-Audio-Pack/1.0'}
+          def dl(url,out):
+            out=Path(out); out.parent.mkdir(parents=True,exist_ok=True)
+            last=None
+            for i in range(4):
+              try:
+                req=urllib.request.Request(url,headers=UA)
+                with urllib.request.urlopen(req,timeout=60) as r,open(out,'wb') as w: shutil.copyfileobj(r,w)
+                if out.stat().st_size<128: raise RuntimeError('too small')
+                h=open(out,'rb').read(24).lstrip().lower()
+                if h.startswith(b'<html') or h.startswith(b'<!doctype html'): raise RuntimeError('HTML response')
+                return
+              except Exception as e:
+                last=e; time.sleep(2+i*2)
+            raise RuntimeError(f'{url}: {last}')
+          def sha(p):
+            h=hashlib.sha256()
+            with open(p,'rb') as f:
+              for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
+            return h.hexdigest()
+          def kenney(page):
+            req=urllib.request.Request(page,headers=UA)
+            html=urllib.request.urlopen(req,timeout=60).read().decode('utf8','ignore')
+            hs=[urllib.parse.urljoin(page,x.replace('&amp;','&')) for x in re.findall(r'''href=["']([^"']+)["']''',html,re.I)]
+            zs=[x for x in hs if '.zip' in x.lower()]
+            pref=[x for x in zs if '/media/pages/assets/' in x]
+            if pref:return pref[0]
+            if zs:return zs[0]
+            raise RuntimeError('no zip link')
+          def extract(src,dest):
+            if zipfile.is_zipfile(src):
+              with zipfile.ZipFile(src) as z:z.extractall(dest)
+              return True
+            return False
+          def copy_media(src,dest):
+            exts={'.wav','.ogg','.mp3','.flac','.aif','.aiff','.m4a','.png','.webp','.jpg','.jpeg','.svg'}
+            dest=Path(dest);dest.mkdir(parents=True,exist_ok=True);n=0
+            for p in Path(src).rglob('*'):
+              if p.is_file() and p.suffix.lower() in exts:
+                t=dest/p.name
+                if t.exists():
+                  if sha(t)==sha(p):continue
+                  t=dest/(p.stem+'__'+sha(p)[:8]+p.suffix.lower())
+                shutil.copy2(p,t);n+=1
+            return n
+          sources=[]
+          def add(i,prov,title,lic,cat,page=None,direct=None):sources.append(dict(id=i,provider=prov,title=title,license=lic,category=cat,page=page,direct=direct))
+          for i,t,c,p in [
+            ('KENNEY_INTERFACE','Interface Sounds','01_UI_MENU','https://kenney.nl/assets/interface-sounds'),
+            ('KENNEY_IMPACT','Impact Sounds','03_ARMI_IMPATTI_FOLEY','https://kenney.nl/assets/impact-sounds'),
+            ('KENNEY_RPG','RPG Audio','03_ARMI_IMPATTI_FOLEY','https://kenney.nl/assets/rpg-audio'),
+            ('KENNEY_CASINO','Casino Audio','02_CARTE_DECK_SCARTI','https://kenney.nl/assets/casino-audio'),
+            ('KENNEY_UI_AUDIO','UI Audio','01_UI_MENU','https://kenney.nl/assets/ui-audio'),
+            ('KENNEY_DIGITAL','Digital Audio','09_ARTEFICE_COSTRUTTI','https://kenney.nl/assets/digital-audio'),
+            ('KENNEY_SCIFI','Sci-fi Sounds','09_ARTEFICE_COSTRUTTI','https://kenney.nl/assets/sci-fi-sounds'),
+            ('KENNEY_JINGLES','Music Jingles','16_VICTORY_DEFEAT_STINGER','https://kenney.nl/assets/music-jingles'),
+            ('KENNEY_PARTICLES','Particle Pack','18_VFX_PARTICLES','https://kenney.nl/assets/particle-pack'),
+            ('KENNEY_SMOKE','Smoke Particles','18_VFX_PARTICLES','https://kenney.nl/assets/smoke-particles'),
+            ('KENNEY_LIGHT','Light Masks','18_VFX_PARTICLES','https://kenney.nl/assets/light-masks'),
+            ('KENNEY_SPLAT','Splat Pack','18_VFX_PARTICLES','https://kenney.nl/assets/splat-pack')]:add(i,'Kenney',t,'CC0 1.0',c,page=p)
+          oga=[
+            ('OGA_TINY','Fantasy Sound Effects Tinysized','03_ARMI_IMPATTI_FOLEY','https://opengameart.org/content/fantasy-sound-effects-tinysized-sfx','https://opengameart.org/sites/default/files/tinysized.zip'),
+            ('OGA_ACCESSORY','Fantasy Accessory SFX Library','07_MONETE_ORO_MERCANTI','https://opengameart.org/content/fantasy-accessory-sfx-library','https://opengameart.org/sites/default/files/accessory.zip'),
+            ('OGA_WEAPONS','Fantasy Weapons and Apparel SFX Library','03_ARMI_IMPATTI_FOLEY','https://opengameart.org/content/fantasy-weapons-and-apparel-sfx-library','https://opengameart.org/sites/default/files/weapons-apparel.zip'),
+            ('OGA_RPG50','50 RPG sound effects Kenney','03_ARMI_IMPATTI_FOLEY','https://opengameart.org/content/50-rpg-sound-effects','https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip'),
+            ('OGA_MAGIC1','Magic Spell 1','04_MAGIA_MANA','https://opengameart.org/content/magic-spell-sfx','https://opengameart.org/sites/default/files/magical_1_0.ogg'),
+            ('OGA_MAGIC2','Magic Spell 2','04_MAGIA_MANA','https://opengameart.org/content/magic-spell-sfx','https://opengameart.org/sites/default/files/magical_2.ogg'),
+            ('OGA_MAGIC3','Magic Spell 3','04_MAGIA_MANA','https://opengameart.org/content/magic-spell-sfx','https://opengameart.org/sites/default/files/magical_3.ogg'),
+            ('OGA_MAGIC4','Magic Spell 4','04_MAGIA_MANA','https://opengameart.org/content/magic-spell-sfx','https://opengameart.org/sites/default/files/magical_4.ogg'),
+            ('OGA_MAGIC5','Magic Spell 5','04_MAGIA_MANA','https://opengameart.org/content/magic-spell-sfx','https://opengameart.org/sites/default/files/magical_5.ogg'),
+            ('OGA_MAGIC6','Magic Spell 6','04_MAGIA_MANA','https://opengameart.org/content/magic-spell-sfx','https://opengameart.org/sites/default/files/magical_6_0.ogg'),
+            ('OGA_MAGIC7','Magic Spell 7','04_MAGIA_MANA','https://opengameart.org/content/magic-spell-sfx','https://opengameart.org/sites/default/files/magical_7_0.ogg'),
+            ('OGA_TELEPORT','Teleport','08_EVOCAZIONI_CREATURE','https://opengameart.org/content/teleport','https://opengameart.org/sites/default/files/172206__fins__teleport.wav'),
+            ('OGA_FIREBALL','Fireball','04_MAGIA_MANA','https://opengameart.org/content/fireball-1','https://opengameart.org/sites/default/files/105016__julien-matthey__jm-fx-fireball-01.wav'),
+            ('OGA_DUNGEON','Loopable Dungeon Ambience','12_AMBIENCE_MAPPE','https://opengameart.org/content/loopable-dungeon-ambience','https://opengameart.org/sites/default/files/dungeon_ambient_1_0.ogg'),
+            ('OGA_FOREST','Forest Ambience','05_NATURA_LINFA_DRUIDI','https://opengameart.org/content/forest-ambience','https://opengameart.org/sites/default/files/Forest_Ambience.mp3'),
+            ('OGA_SNOW','Snow Theme','15_MUSICHE_EXPLORATION','https://opengameart.org/content/snow-theme','https://opengameart.org/sites/default/files/snow_theme_1.zip'),
+            ('OGA_BATTLE','Medieval Battle','14_MUSICHE_BATTLE','https://opengameart.org/content/medieval-battle','https://opengameart.org/sites/default/files/battle_8.mp3'),
+            ('OGA_EXPLORE','Medieval Exploration','15_MUSICHE_EXPLORATION','https://opengameart.org/content/medieval-exploration','https://opengameart.org/sites/default/files/Exploration_0.mp3'),
+            ('OGA_VICTORY','Medieval Victory','16_VICTORY_DEFEAT_STINGER','https://opengameart.org/content/medieval-victory-theme','https://opengameart.org/sites/default/files/victory_0.mp3'),
+            ('OGA_DEFEAT','Medieval Defeat','16_VICTORY_DEFEAT_STINGER','https://opengameart.org/content/medieval-defeat-theme','https://opengameart.org/sites/default/files/defeat_0.mp3'),
+            ('OGA_INN','The Old Tower Inn','15_MUSICHE_EXPLORATION','https://opengameart.org/content/medieval-the-old-tower-inn','https://opengameart.org/sites/default/files/The_Old_Tower_Inn.mp3')]
+          for i,t,c,p,u in oga:add(i,'OpenGameArt',t,'CC0 1.0',c,page=p,direct=u)
+          manifest=[];fails=[]
+          for s in sources:
+            try:
+              url=s['direct'] or kenney(s['page']); ext=Path(urllib.parse.urlparse(url).path).suffix or '.bin'
+              out=RAW/(s['id']+ext);dl(url,out);x=RAW/(s['id']+'_X');x.mkdir(exist_ok=True)
+              if extract(out,x):n=copy_media(x,ROOT/s['category']/s['id']);shutil.rmtree(x)
+              else:
+                d=ROOT/s['category']/s['id'];d.mkdir(parents=True,exist_ok=True);shutil.copy2(out,d/out.name);n=1
+              manifest.append({**s,'download_url':url,'sha256':sha(out),'bytes':out.stat().st_size,'copied_media':n,'status':'OK'})
+            except Exception as e:
+              manifest.append({**s,'download_url':'','sha256':'','bytes':0,'copied_media':0,'status':'FAILED '+str(e)});fails.append((s['id'],str(e)))
+          with open(PROV/'SOURCE_MANIFEST.csv','w',newline='',encoding='utf-8-sig') as f:
+            fields=['id','provider','title','license','category','page','direct','download_url','sha256','bytes','copied_media','status'];w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(manifest)
+          (PROV/'LICENSES.md').write_text('# Licenze\n\nPacchetto costruito da sorgenti dichiarate CC0 nel manifest. Verificare sempre la pagina sorgente prima della distribuzione commerciale.\n',encoding='utf8')
+          (ROOT/'20_LINK_ONLY_NON_REDISTRIBUTABLE'/'SOURCES.md').write_text('# Link only\n\n- Sonniss: https://sonniss.com/gameaudiogdc/\n- Pixabay: https://pixabay.com/sound-effects/\n- Freesound: https://freesound.org/\n- Mixkit: https://mixkit.co/free-sound-effects/\n- ZapSplat: https://www.zapsplat.com/\n',encoding='utf8')
+          for d,srcs in {'06_OSCURO_CORRUZIONE':['04_MAGIA_MANA','09_ARTEFICE_COSTRUTTI'],'10_JOLLY_SPECCHIO':['04_MAGIA_MANA','08_EVOCAZIONI_CREATURE'],'11_CASTELLO_ASSEDIO':['03_ARMI_IMPATTI_FOLEY'],'13_STORIA_LOCATION':['05_NATURA_LINFA_DRUIDI','12_AMBIENCE_MAPPE','15_MUSICHE_EXPLORATION'],'17_BOSS_SPECIAL':['14_MUSICHE_BATTLE','04_MAGIA_MANA','03_ARMI_IMPATTI_FOLEY']}.items():(ROOT/d/'_README_SOURCE_POOLS.txt').write_text('\n'.join(srcs),encoding='utf8')
+          total=sum(p.stat().st_size for p in ROOT.rglob('*') if p.is_file())
+          (ROOT/'README_FIRST.md').write_text(f'# ASSEDIO AUDIO VFX MEGAPACK FULL\n\nSorgenti: {len(sources)}\nFallimenti: {len(fails)}\nDimensione non compressa: {total/1024/1024:.2f} MiB\n\n'+''.join(f'- {a}: {b}\n' for a,b in fails),encoding='utf8')
+          with zipfile.ZipFile('ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip','w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+            for p in ROOT.rglob('*'):
+              if p.is_file():z.write(p,p.as_posix())
+          Path('ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip.sha256').write_text(sha('ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip')+'  ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip\n')
+          print('ZIP',Path('ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip').stat().st_size,'FAILS',fails)
+          PY
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete assedio-audio-public-20260831 --yes || true
+          git tag -d assedio-audio-public-20260831 2>/dev/null || true
+          git push origin :refs/tags/assedio-audio-public-20260831 2>/dev/null || true
+          gh release create assedio-audio-public-20260831 ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip ASSEDIO_AUDIO_VFX_MEGAPACK_FULL.zip.sha256 --title 'ASSEDIO Audio VFX Megapack Full' --notes 'Temporary public transfer build for ASSEDIO audio/VFX megapack.' --target '${{ github.sha }}'
