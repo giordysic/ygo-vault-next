@@ -1,0 +1,46 @@
+name: Isolated Android build support
+on:
+  push:
+    branches: [build/android-tools-nk42-20261013]
+    paths: [.github/workflows/android-build-support.yml]
+permissions:
+  contents: read
+jobs:
+  sdk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Package Android build tools and license notices only
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="$ANDROID_HOME"
+          if [ ! -f "$SDK/platforms/android-34/android.jar" ]; then
+            "$SDK/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-34'
+          fi
+          BT="$SDK/build-tools/35.0.0"
+          if [ ! -f "$BT/lib/d8.jar" ]; then
+            "$SDK/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+          fi
+          mkdir -p android-build-support/lib android-build-support/notices
+          cp "$SDK/platforms/android-34/android.jar" android-build-support/android.jar
+          for f in aapt aapt2 zipalign dexdump; do cp "$BT/$f" android-build-support/; done
+          cp "$BT/lib/d8.jar" "$BT/lib/apksigner.jar" android-build-support/lib/
+          if [ -d "$BT/lib64" ]; then cp -r "$BT/lib64" android-build-support/; fi
+          for d in "$BT" "$SDK/platforms/android-34"; do
+            label=$(basename "$d")
+            mkdir -p "android-build-support/notices/$label"
+            find "$d" -maxdepth 1 -type f \( -name '*NOTICE*' -o -name 'source.properties' -o -name 'package.xml' \) -exec cp {} "android-build-support/notices/$label/" \;
+          done
+          printf '%s\n' 'Android SDK API 34; Build Tools 35.0.0. Public tools only. No app sources or private keys.' > android-build-support/notices/README.txt
+          (cd android-build-support && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+          tar -czf android-build-support.tar.gz android-build-support
+          sha256sum android-build-support.tar.gz
+          du -h android-build-support.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-build-support-api34-bt35
+          path: android-build-support.tar.gz
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
