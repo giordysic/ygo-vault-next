@@ -1,0 +1,36 @@
+name: Nothing Browser Toolchain
+
+on:
+  push:
+    branches:
+      - build/nothing-browser-toolchain
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  toolchain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download Android build libraries
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          curl --fail --location --retry 4 --retry-delay 2 \
+            -o out/r8-8.3.37.jar \
+            https://dl.google.com/dl/android/maven2/com/android/tools/r8/8.3.37/r8-8.3.37.jar
+          curl --fail --location --retry 4 --retry-delay 2 \
+            -o out/apksig-8.3.2.jar \
+            https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/8.3.2/apksig-8.3.2.jar
+          sha256sum out/* > out/SHA256SUMS.txt
+          java -cp out/r8-8.3.37.jar com.android.tools.r8.D8 --version
+      - name: Upload toolchain
+        uses: actions/upload-artifact@v4
+        with:
+          name: nothing-browser-android-toolchain
+          path: out/
+          if-no-files-found: error
+          retention-days: 1
