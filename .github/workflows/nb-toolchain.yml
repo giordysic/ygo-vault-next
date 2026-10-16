@@ -25,12 +25,15 @@ jobs:
           curl --fail --location --retry 4 --retry-delay 2 \
             -o out/apksig-8.3.2.jar \
             https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/8.3.2/apksig-8.3.2.jar
+          curl --fail --location --retry 4 --retry-delay 2 \
+            -o out/gson-2.10.1.jar \
+            https://repo1.maven.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar
           sha256sum out/* > out/SHA256SUMS.txt
           java -cp out/r8-8.3.37.jar com.android.tools.r8.D8 --version
       - name: Upload toolchain
         uses: actions/upload-artifact@v4
         with:
-          name: nothing-browser-android-toolchain
+          name: nothing-browser-android-toolchain-with-tests
           path: out/
           if-no-files-found: error
           retention-days: 1
