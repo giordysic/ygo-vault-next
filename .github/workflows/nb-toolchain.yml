@@ -28,6 +28,7 @@ jobs:
           cp "$ANDROID_HOME/platforms/android-36/android.jar" out/android-36.jar
           cp "$ANDROID_HOME/build-tools/36.0.0/aapt2" out/aapt2
           cp "$ANDROID_HOME/build-tools/36.0.0/zipalign" out/zipalign
+          cp "$ANDROID_HOME/build-tools/36.0.0/lib64/libc++.so" out/libc++.so
           chmod +x out/aapt2 out/zipalign
           curl --fail --location --retry 4 --retry-delay 2 \
             -o out/r8-8.3.37.jar \
@@ -41,7 +42,7 @@ jobs:
           sha256sum out/* > out/SHA256SUMS.txt
           java -cp out/r8-8.3.37.jar com.android.tools.r8.D8 --version
           out/aapt2 version
-          out/zipalign -h >/dev/null
+          LD_LIBRARY_PATH="$ANDROID_HOME/build-tools/36.0.0/lib64" out/zipalign -h >/dev/null
       - name: Upload toolchain
         uses: actions/upload-artifact@v4
         with:
