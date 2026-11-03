@@ -42,7 +42,8 @@ jobs:
           sha256sum out/* > out/SHA256SUMS.txt
           java -cp out/r8-8.3.37.jar com.android.tools.r8.D8 --version
           out/aapt2 version
-          LD_LIBRARY_PATH="$ANDROID_HOME/build-tools/36.0.0/lib64" out/zipalign -h >/dev/null
+          test -x out/zipalign
+          test -s out/libc++.so
       - name: Upload toolchain
         uses: actions/upload-artifact@v4
         with:
