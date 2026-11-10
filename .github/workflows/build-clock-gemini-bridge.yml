@@ -42,7 +42,7 @@ jobs:
           gradle-version: '9.3.1'
       - name: Compile AppFunctions bridge
         run: gradle --no-daemon --stacktrace :app:assembleDebug :app:assembleRelease
-      - name: Publish build payload
+      - name: Collect build payload
         run: |
           mkdir -p artifact/generated artifact/reports
           cp app/build/outputs/apk/debug/app-debug.apk artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk
@@ -57,14 +57,23 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk > artifact/reports/apksigner.txt
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk > artifact/reports/badging.txt
           unzip -l artifact/CLOCK-GEMINI-BRIDGE-2.2.0-release-unsigned.apk > artifact/reports/apk-files-release.txt
+          tar -C artifact -czf "$RUNNER_TEMP/CLOCK-GEMINI-BRIDGE-2200.tar.gz" .
           OUT="$GITHUB_WORKSPACE/clock-gemini-build-output"
           rm -rf "$OUT"
           mkdir -p "$OUT"
-          tar -C artifact -czf "$RUNNER_TEMP/CLOCK-GEMINI-BRIDGE-2200.tar.gz" .
           base64 "$RUNNER_TEMP/CLOCK-GEMINI-BRIDGE-2200.tar.gz" > "$OUT/CLOCK-GEMINI-BRIDGE-2200.tar.gz.b64"
           cp artifact/reports/sha256.txt "$OUT/sha256.txt"
           cp artifact/reports/sizes.txt "$OUT/sizes.txt"
           wc -c "$RUNNER_TEMP/CLOCK-GEMINI-BRIDGE-2200.tar.gz" "$OUT/CLOCK-GEMINI-BRIDGE-2200.tar.gz.b64" > "$OUT/payload-size.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CLOCK-GEMINI-BRIDGE-2200
+          path: /home/runner/work/_temp/CLOCK-GEMINI-BRIDGE-2200.tar.gz
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+      - name: Publish text fallback
+        run: |
           cd "$GITHUB_WORKSPACE"
           git config user.name "clock-gemini-builder"
           git config user.email "clock-gemini-builder@users.noreply.github.com"
