@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+    appfn:description="Clock provides deterministic on-device functions for alarms, timers, Focus sessions, countdowns, stopwatch controls and navigation. Operational rules: use startTimer for ordinary countdowns; use startFocus for work sessions; use createOneTimeAlarm only for a future ISO-8601 instant; use prepareNaturalLanguageCommand when the request is ambiguous or requires user review. Never claim an action succeeded unless the returned result confirms it. Destructive deletion and data reset are intentionally unavailable."
+    appfn:displayDescription="@string/app_function_app_display_description" />

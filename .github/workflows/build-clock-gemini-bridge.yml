@@ -1,0 +1,73 @@
+name: Build Clock Gemini AppFunctions Bridge
+
+on:
+  push:
+    branches: [ clock-gemini-build-2200 ]
+    paths:
+      - 'clock-gemini-bridge/**'
+      - '.github/workflows/build-clock-gemini-bridge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+    defaults:
+      run:
+        working-directory: clock-gemini-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK 37
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --channel=3 "platforms;android-37.0" "build-tools;37.0.0" "build-tools;36.0.0" "platform-tools"
+          if [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
+            ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+          fi
+          echo "$(dirname "$SDKMANAGER")" >> "$GITHUB_PATH"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+      - name: Compile AppFunctions bridge
+        run: gradle --no-daemon --stacktrace :app:assembleDebug :app:assembleRelease
+      - name: Publish build payload
+        run: |
+          mkdir -p artifact/generated artifact/reports
+          cp app/build/outputs/apk/debug/app-debug.apk artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk
+          cp app/build/outputs/apk/release/app-release-unsigned.apk artifact/CLOCK-GEMINI-BRIDGE-2.2.0-release-unsigned.apk
+          find app/build/generated -type f -print -exec cp --parents '{}' artifact/generated/ \; || true
+          find app/build/intermediates/merged_manifest -type f -print -exec cp --parents '{}' artifact/generated/ \; || true
+          find app/build/intermediates/packaged_manifests -type f -print -exec cp --parents '{}' artifact/generated/ \; || true
+          find app/build/outputs/mapping -type f -print -exec cp --parents '{}' artifact/generated/ \; || true
+          gradle --no-daemon :app:dependencies > artifact/reports/dependencies.txt
+          sha256sum artifact/*.apk > artifact/reports/sha256.txt
+          ls -l artifact/*.apk > artifact/reports/sizes.txt
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk > artifact/reports/apksigner.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk > artifact/reports/badging.txt
+          unzip -l artifact/CLOCK-GEMINI-BRIDGE-2.2.0-release-unsigned.apk > artifact/reports/apk-files-release.txt
+          OUT="$GITHUB_WORKSPACE/clock-gemini-build-output"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"
+          tar -C artifact -czf "$RUNNER_TEMP/CLOCK-GEMINI-BRIDGE-2200.tar.gz" .
+          base64 "$RUNNER_TEMP/CLOCK-GEMINI-BRIDGE-2200.tar.gz" > "$OUT/CLOCK-GEMINI-BRIDGE-2200.tar.gz.b64"
+          cp artifact/reports/sha256.txt "$OUT/sha256.txt"
+          cp artifact/reports/sizes.txt "$OUT/sizes.txt"
+          wc -c "$RUNNER_TEMP/CLOCK-GEMINI-BRIDGE-2200.tar.gz" "$OUT/CLOCK-GEMINI-BRIDGE-2200.tar.gz.b64" > "$OUT/payload-size.txt"
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "clock-gemini-builder"
+          git config user.email "clock-gemini-builder@users.noreply.github.com"
+          git add -A clock-gemini-build-output
+          git commit -m "Publish Clock Gemini bridge build 2200" || exit 0
+          git push origin HEAD:clock-gemini-build-2200
