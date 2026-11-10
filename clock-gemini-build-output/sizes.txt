@@ -1,2 +1,2 @@
--rw-r--r-- 1 runner runner 3625049 Nov 10 20:56 artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk
--rw-r--r-- 1 runner runner  165891 Nov 10 20:56 artifact/CLOCK-GEMINI-BRIDGE-2.2.0-release-unsigned.apk
+-rw-r--r-- 1 runner runner 3625049 Nov 10 21:01 artifact/CLOCK-GEMINI-BRIDGE-2.2.0-debug.apk
+-rw-r--r-- 1 runner runner  165891 Nov 10 21:01 artifact/CLOCK-GEMINI-BRIDGE-2.2.0-release-unsigned.apk
